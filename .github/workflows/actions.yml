@@ -36,15 +36,16 @@ jobs:
     container:
       image: sonarsource/sonar-scanner-cli:latest
     steps:
-    - name: Download Artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: source-code
-        path: .
+      - name: Download source code
+        uses: actions/download-artifact@v4
+        with:
+          name: source-code
+          path: .
 
-    - name: List downloaded files and folders
-      run: |
-        ls -l
+
+      - name: List downloaded files and folders
+        run: |
+          ls -l
 
     # - name: Scan your Static compile code and send scanning report along with codecoverage report to sonarqube server
     #   run: |
