@@ -15,13 +15,37 @@ permissions:
 
 jobs:
 
-  clone:
+  # clone:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v4
+  #       with:
+  #         path: .
+
+  #     - name: Upload Source Code
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: source-code
+  #         path: .
+
+
+  build:
     runs-on: ubuntu-latest
+    # needs: clone
+    container:
+      image: maven:3.9-eclipse-temurin-17
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           path: .
+
+
+      - name: Build the Source Code
+        run: |
+          mvn clean package -DskipTests
 
       - name: Upload Source Code
         uses: actions/upload-artifact@v4
@@ -29,44 +53,27 @@ jobs:
           name: source-code
           path: .
 
+      # - name: List downloaded files and folders
+      #   run: |
+      #     ls -l
 
-  build:
+  sast:
     runs-on: ubuntu-latest
-    needs: clone
+    needs: build
     container:
-      image: maven:3.9-eclipse-temurin-17
-
+      image: sonarsource/sonar-scanner-cli:latest
     steps:
-      - name: Download source code
-        uses: actions/download-artifact@v4
-        with:
-          name: source-code
-          path: .
-
-      - name: Build the Source Code
-        run: |
-          mvn clean package -DskipTests
-
-      - name: List downloaded files and folders
-        run: |
-          ls -l
-
-  # sast:
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   container:
-  #     image: sonarsource/sonar-scanner-cli:latest
-  #   steps:
-  #     - name: Download source code
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: source-code
-  #         path: .
+    - name: Download source code
+      uses: actions/download-artifact@v4
+      with:
+        name: source-code
+        path: /github/workspace
 
 
-  #     - name: List downloaded files and folders
-  #       run: |
-  #         ls -l
+
+    - name: List downloaded files and folders
+      run: |
+        ls -l
 
     # - name: Scan your Static compile code and send scanning report along with codecoverage report to sonarqube server
     #   run: |
