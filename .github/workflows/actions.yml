@@ -36,7 +36,7 @@ jobs:
     if: failure() # this will trigger if *any* of the jobs fail
     steps:
       - name: Send Failure Notification Email
-        uses: NavabShariff/shared-library/.github/actions/notification/send-failur-notification.yml@main
+        uses: uses: NavabShariff/shared-library/.github/actions/notification/send-failur-notification@main
         with:
           commit_author_name: ${{ github.event.pusher.name }}
           commit_author_email: ${{ github.event.pusher.email }}
