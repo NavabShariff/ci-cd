@@ -15,21 +15,6 @@ permissions:
 
 jobs:
 
-  # clone:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v4
-  #       with:
-  #         path: .
-
-  #     - name: Upload Source Code
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: source-code
-  #         path: .
-
-
   build:
     runs-on: ubuntu-latest
     # needs: clone
@@ -42,7 +27,6 @@ jobs:
         with:
           path: .
 
-
       - name: Build the Source Code
         run: |
           mvn clean package -DskipTests
@@ -53,9 +37,6 @@ jobs:
           name: source-code
           path: .
 
-      # - name: List downloaded files and folders
-      #   run: |
-      #     ls -l
 
   sast:
     runs-on: ubuntu-latest
@@ -70,21 +51,26 @@ jobs:
         name: source-code
         path: .
 
-
-
-    - name: List downloaded files and folders
+    - name: Scanning of compile code and send scanning report along with codecoverage report to SonarQube server
       run: |
-        ls -l
+        sonar-scanner \
+          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.projectName=${{ github.event.repository.name }} \
+          -Dsonar.projectKey=${{ github.event.repository.name }} \
+          -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml \
+          -Dsonar.sources=src/main/java \
+          -Dsonar.tests=src/test/java \
+          -Dsonar.java.binaries=target/classes \
+          -Dsonar.qualitygate.wait=true
 
-    # - name: Scan your Static compile code and send scanning report along with codecoverage report to sonarqube server
-    #   run: |
         
 
 
 
   notify-on-failure:
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [build, sast]
     if: failure() # this will trigger if *any* of the jobs fail
     steps:
       - name: Send Failure Notification Email
