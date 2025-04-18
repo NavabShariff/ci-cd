@@ -22,7 +22,7 @@ jobs:
 
       - name: Build the Source Code
         run: |
-          mvn clean compile
+          mvn clean package -DskipTests
 
       - name: Upload Source Code
         uses: actions/upload-artifact@v4
@@ -30,11 +30,11 @@ jobs:
           name: source-code
           path: .
 
-  code-coverage:
-    runs-on: ubuntu-latest
+  sast:
+    runs-on: ubuntu-lates
     needs: build
     container:
-      image:  maven:3.9-eclipse-temurin-17
+      image: sonarsource/sonar-scanner-cli:latest
     steps:
     - name: Download Artifacts
       uses: actions/download-artifact@v4
@@ -42,10 +42,13 @@ jobs:
         name: source-code
         path: .
 
-    - name: Generate code coverage
+    - name: List downloaded files and folders
       run: |
-         mvn jacoco:report
+        ls -l
 
+    # - name: Scan your Static compile code and send scanning report along with codecoverage report to sonarqube server
+    #   run: |
+        
 
 
 
