@@ -30,6 +30,24 @@ jobs:
           name: source-code
           path: .
 
+  code-coverage:
+    runs-on: ubuntu-latest
+    container:
+      image:  maven:3.9-eclipse-temurin-17
+    steps:
+    - name: Download Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: source-code
+        path: .
+
+    - name: Generate code coverage
+      run: |
+         mvn jacoco:report
+
+
+
+
   notify-on-failure:
     runs-on: ubuntu-latest
     needs: [build]
