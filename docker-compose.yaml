@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  scylladb:
+    image: scylladb/scylla:latest
+    container_name: scylladb
+    ports:
+      - "9042:9042"
+    environment:
+       CQL_AUTHENTICATOR: PasswordAuthenticator
+       CQL_AUTHENTICATOR_USER: scylladb
+       CQL_AUTHENTICATOR_PASSWORD: password
+    volumes:
+      - scylla-data:/var/lib/scylla
+    healthcheck:
+      test: ["CMD", "cqlsh", "-u", "scylladb", "-p", "password", "-e", "desc keyspaces"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  init-scylla:
+    image: scylladb/scylla:latest
+    depends_on:
+      scylladb:
+        condition: service_healthy
+    volumes:
+      - ./init-scylla.cql:/init-scylla.cql
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "
+      until cqlsh scylladb 9042 -u scylladb -p password -e 'DESCRIBE KEYSPACES'; do
+         echo 'Waiting for Scylla to be ready...';
+         sleep 5;
+      done;
+      echo 'Scylla is ready. Initializing schema...';
+      cqlsh scylladb 9042 -u scylladb -p password -f /init-scylla.cql;
+      echo 'Schema initialized.';
+      "
+
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    environment:
+       REDIS_PASSWORD: password
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "password", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  maven:
+    image: maven:3.8-openjdk-17
+    container_name: maven
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app  # Mount the entire project directory
+      # - ./.m2:/root/.m2 # Optional: Cache Maven dependencies
+ # Optional: Persist maven dependencies across builds
+    command: mvn clean package  # Runs tests using Maven
+    depends_on:
+      - scylladb
+      - redis
+    environment:
+      MAVEN_OPTS: "-Xmx1024m"
+
+  # salary-api:
+  #   build: .
+  #   # image: salary-api:1
+  #   container_name: salary-api
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #     scylladb:
+  #       condition: service_healthy
+  #     init-scylla:
+  #       condition: service_completed_successfully
+
+
+volumes:
+  scylla-data:
+  redis-data:

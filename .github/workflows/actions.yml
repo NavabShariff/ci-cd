@@ -1,0 +1,43 @@
+name: salary-api-build-pipeline
+
+on:
+  push:
+    branches: ['main']
+
+# env:
+#   SMTP_SERVER: smtp.yourdomain.com
+#   SMTP_USERNAME: your@email.com
+#   SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+
+jobs:
+
+  build-unitest:
+    runs-on: ubuntu-latest
+    container:
+      image: maven:3.9-eclipse-temurin-17
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build the Source Code
+        run: |
+          mvn clean compile
+
+      - name: Upload Source Code
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-code
+          path: .
+
+    # Notification if job fails
+    if: failure()
+    steps:
+    - name: Send Failure Notification Email
+      uses: NavabShariff/shared-library/.github/actions/notification/send-failur-notification.yml@main
+      with:
+        commit_author_name: ${{ github.event.pusher.name }}
+        commit_author_email: ${{ github.event.pusher.email }}
+        commit_message: ${{ github.event.head_commit.message }}
+        commit_id: ${{ github.sha }}
+        run_id: ${{ github.run_id }}
