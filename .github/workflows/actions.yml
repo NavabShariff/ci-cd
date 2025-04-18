@@ -38,6 +38,9 @@ jobs:
       - name: Send Failure Notification Email
         uses: NavabShariff/shared-library/.github/actions/notification/send-failur-notification@main
         with:
+          smtp_server: ${{ secrets.SMTP_SERVER }}
+          smtp_username: ${{ secrets.SMTP_USERNAME }}
+          smtp_password: ${{ secrets.SMTP_PASSWORD }}
           commit_author_name: ${{ github.event.pusher.name }}
           commit_author_email: ${{ github.event.pusher.email }}
           commit_message: ${{ github.event.head_commit.message }}
