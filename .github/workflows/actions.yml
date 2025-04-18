@@ -22,7 +22,7 @@ jobs:
 
       - name: Build the Source Code
         run: |
-          mvn clean package
+          mvn clean compile
 
       - name: Upload Source Code
         uses: actions/upload-artifact@v4
