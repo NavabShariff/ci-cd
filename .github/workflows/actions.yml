@@ -35,7 +35,7 @@ jobs:
     # needs: clone
     container:
       image: maven:3.9-eclipse-temurin-17
-
+      options: --user root
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -62,12 +62,13 @@ jobs:
     needs: build
     container:
       image: sonarsource/sonar-scanner-cli:latest
+      options: --user root
     steps:
     - name: Download source code
       uses: actions/download-artifact@v4
       with:
         name: source-code
-        path: /github/workspace
+        path: .
 
 
 
