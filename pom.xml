@@ -119,7 +119,7 @@
 			<artifactId>dependency-check-maven</artifactId>
 			<executions>
 				<execution>
-				<phase>test</phase> <!- Add this line -->
+				<phase>test</phase>
 				<goals>
 					<goal>check</goal>
 				</goals>
