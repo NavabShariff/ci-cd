@@ -1,0 +1,13 @@
+name: test
+
+on:
+ push:
+  branches: ['main']
+
+jobs:
+   test:
+     runs-on: ubuntu-latest
+     steps:
+     - name: check aws cli
+       run:  |
+         aws --version

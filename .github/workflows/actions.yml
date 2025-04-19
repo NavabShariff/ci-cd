@@ -1,202 +1,202 @@
-name: salary-api-build-pipeline
+# name: salary-api-build-pipeline
 
-on:
-  push:
-    branches: ['main']
-
-
-permissions:
-  id-token: write
-  contents: read  
+# on:
+#   push:
+#     branches: ['main']
 
 
-
-jobs:
-
-  build:
-    runs-on: ubuntu-latest
-    container:
-      image: maven:3.9-eclipse-temurin-17
-      options: --user root
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          path: .
-
-      - name: Build the Source Code
-        run: |
-          mvn clean package -DskipTests
-
-      - name: Upload Source Code
-        uses: actions/upload-artifact@v4
-        with:
-          name: source-code
-          path: .
+# permissions:
+#   id-token: write
+#   contents: read  
 
 
-  sast:
-    runs-on: ubuntu-latest
-    needs: build
-    container:
-      image: sonarsource/sonar-scanner-cli:latest
-      options: --user root
-    steps:
-    - name: Download source code
-      uses: actions/download-artifact@v4
-      with:
-        name: source-code
-        path: .
 
-    - name: Scanning of compile code and send scanning report along with codecoverage report to SonarQube server
-      run: |
-        sonar-scanner \
-          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-          -Dsonar.projectName=${{ github.event.repository.name }} \
-          -Dsonar.projectKey=${{ github.event.repository.name }} \
-          -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml \
-          -Dsonar.dependencyCheck.reportPath=dependency-check-report.xml \
-          -Dsonar.sources=src/main/java \
-          -Dsonar.tests=src/test/java \
-          -Dsonar.java.binaries=target/classes \
-          -Dsonar.qualitygate.wait=true
+# jobs:
+
+#   build:
+#     runs-on: ubuntu-latest
+#     container:
+#       image: maven:3.9-eclipse-temurin-17
+#       options: --user root
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+#         with:
+#           path: .
+
+#       - name: Build the Source Code
+#         run: |
+#           mvn clean package -DskipTests
+
+#       - name: Upload Source Code
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: source-code
+#           path: .
+
+
+#   sast:
+#     runs-on: ubuntu-latest
+#     needs: build
+#     container:
+#       image: sonarsource/sonar-scanner-cli:latest
+#       options: --user root
+#     steps:
+#     - name: Download source code
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: source-code
+#         path: .
+
+#     - name: Scanning of compile code and send scanning report along with codecoverage report to SonarQube server
+#       run: |
+#         sonar-scanner \
+#           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+#           -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+#           -Dsonar.projectName=${{ github.event.repository.name }} \
+#           -Dsonar.projectKey=${{ github.event.repository.name }} \
+#           -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml \
+#           -Dsonar.dependencyCheck.reportPath=dependency-check-report.xml \
+#           -Dsonar.sources=src/main/java \
+#           -Dsonar.tests=src/test/java \
+#           -Dsonar.java.binaries=target/classes \
+#           -Dsonar.qualitygate.wait=true
 
         
-  docker-build-push:
-    runs-on: ubuntu-latest
-    env: 
-      ECR_REPO: 'salary-api'
-      AWS_REGION: 'ap-south-1'
-    needs: 
-    - build
-    - sast
-    outputs:
-      image-tag: ${{ steps.vars.outputs.image_tag }}
-      image-name: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}
-    steps:
-      - name: Download source code
-        uses: actions/download-artifact@v4
-        with:
-          name: source-code
-          path: .
+#   docker-build-push:
+#     runs-on: ubuntu-latest
+#     env: 
+#       ECR_REPO: 'salary-api'
+#       AWS_REGION: 'ap-south-1'
+#     needs: 
+#     - build
+#     - sast
+#     outputs:
+#       image-tag: ${{ steps.vars.outputs.image_tag }}
+#       image-name: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}
+#     steps:
+#       - name: Download source code
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: source-code
+#           path: .
 
-      - name: Remove target folder after download
-        run: rm -rf ./target
+#       - name: Remove target folder after download
+#         run: rm -rf ./target
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
-          role-session-name: GitHubActionSession
-          aws-region: ${{ env.AWS_REGION }}
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
+#           role-session-name: GitHubActionSession
+#           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-
-      - name: Set Image Tags
-        id: vars
-        run: |
-          IMAGE_TAG=$(echo $GITHUB_SHA | head -c 8)
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+#       - name: Log in to Amazon ECR
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v1
 
 
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
+#       - name: Set Image Tags
+#         id: vars
+#         run: |
+#           IMAGE_TAG=$(echo $GITHUB_SHA | head -c 8)
+#           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+#           echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Upload ecr image scan file
-        uses: actions/upload-artifact@v4
-        with:
-          name: ecr-scan-file
-          path: ecr-image-scan.sh
 
-  docker-image-scan:
-    runs-on: ubuntu-latest
-    env: 
-      ECR_REPO: 'salary-api'
-      AWS_REGION: 'ap-south-1'
-    needs: docker-build-push
-    steps:
-      - name: Download ecr image scan file
-        uses: actions/download-artifact@v4
-        with:
-          name: ecr-scan-file
-          path: .
+#       - name: Build and Push Docker Image
+#         uses:   
+#         with:
+#           context: .
+#           push: true
+#           tags: |
+#             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
-          role-session-name: GitHubActionSession
-          aws-region: ${{ env.AWS_REGION }}
+#       - name: Upload ecr image scan file
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: ecr-scan-file
+#           path: ecr-image-scan.sh
 
-      - name: Install JQ
-        run: sudo apt-get update && sudo apt-get install -y jq
+#   docker-image-scan:
+#     runs-on: ubuntu-latest
+#     env: 
+#       ECR_REPO: 'salary-api'
+#       AWS_REGION: 'ap-south-1'
+#     needs: docker-build-push
+#     steps:
+#       - name: Download ecr image scan file
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: ecr-scan-file
+#           path: .
 
-      - name: Run ECR Vulnerability Scan Check
-        run: |
-          chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image-tag }} ${{ env.AWS_REGION }}
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
+#           role-session-name: GitHubActionSession
+#           aws-region: ${{ env.AWS_REGION }}
 
-  notify-on-success:
-    uses: NavabShariff/shared-library/.github/workflows/send-success-notification.yml@main
-    needs: [build, sast, docker-build-push, docker-image-scan]
-    if: success()
-    secrets:
-      smtp_server: ${{ secrets.SMTP_SERVER }}
-      smtp_username: ${{ secrets.SMTP_USERNAME }}
-      smtp_password: ${{ secrets.SMTP_PASSWORD }}
-    with:
-      commit_author_name: ${{ github.event.pusher.name }}
-      commit_author_email: ${{ github.event.pusher.email }}
-      commit_message: ${{ github.event.head_commit.message }}
-      commit_id: ${{ github.sha }}
-      run_id: ${{ github.run_id }}
+#       - name: Install JQ
+#         run: sudo apt-get update && sudo apt-get install -y jq
 
-  notify-on-failure:
-    uses: NavabShariff/shared-library/.github/workflows/send-failure-notification.yml@main
-    needs: [build, sast, docker-build-push, docker-image-scan]
-    if: failure() 
-    secrets:
-      smtp_server: ${{ secrets.SMTP_SERVER }}
-      smtp_username: ${{ secrets.SMTP_USERNAME }}
-      smtp_password: ${{ secrets.SMTP_PASSWORD }}
-    with:
-      commit_author_name: ${{ github.event.pusher.name }}
-      commit_author_email: ${{ github.event.pusher.email }}
-      commit_message: ${{ github.event.head_commit.message }}
-      commit_id: ${{ github.sha }}
-      run_id: ${{ github.run_id }}
+#       - name: Run ECR Vulnerability Scan Check
+#         run: |
+#           chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image-tag }} ${{ env.AWS_REGION }}
 
-  cleanup:
-    runs-on: ubuntu-latest
-    needs: [docker-image-scan, notify-on-success, notify-on-failure]
-    if: always()
-    steps:
+#   notify-on-success:
+#     uses: NavabShariff/shared-library/.github/workflows/send-success-notification.yml@main
+#     needs: [build, sast, docker-build-push, docker-image-scan]
+#     if: success()
+#     secrets:
+#       smtp_server: ${{ secrets.SMTP_SERVER }}
+#       smtp_username: ${{ secrets.SMTP_USERNAME }}
+#       smtp_password: ${{ secrets.SMTP_PASSWORD }}
+#     with:
+#       commit_author_name: ${{ github.event.pusher.name }}
+#       commit_author_email: ${{ github.event.pusher.email }}
+#       commit_message: ${{ github.event.head_commit.message }}
+#       commit_id: ${{ github.sha }}
+#       run_id: ${{ github.run_id }}
 
-      - name: Install JQ
-        run: sudo apt-get update && sudo apt-get install -y jq
+#   notify-on-failure:
+#     uses: NavabShariff/shared-library/.github/workflows/send-failure-notification.yml@main
+#     needs: [build, sast, docker-build-push, docker-image-scan]
+#     if: failure() 
+#     secrets:
+#       smtp_server: ${{ secrets.SMTP_SERVER }}
+#       smtp_username: ${{ secrets.SMTP_USERNAME }}
+#       smtp_password: ${{ secrets.SMTP_PASSWORD }}
+#     with:
+#       commit_author_name: ${{ github.event.pusher.name }}
+#       commit_author_email: ${{ github.event.pusher.email }}
+#       commit_message: ${{ github.event.head_commit.message }}
+#       commit_id: ${{ github.sha }}
+#       run_id: ${{ github.run_id }}
 
-      - name: Clean up uploaded artifacts
-        run: |
-          echo "Cleaning up uploaded artifacts..."
-          # Get the list of all artifacts in the current repository
-          artifacts=$(curl -s \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/artifacts")
+#   cleanup:
+#     runs-on: ubuntu-latest
+#     needs: [docker-image-scan, notify-on-success, notify-on-failure]
+#     if: always()
+#     steps:
+
+#       - name: Install JQ
+#         run: sudo apt-get update && sudo apt-get install -y jq
+
+#       - name: Clean up uploaded artifacts
+#         run: |
+#           echo "Cleaning up uploaded artifacts..."
+#           # Get the list of all artifacts in the current repository
+#           artifacts=$(curl -s \
+#             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+#             "https://api.github.com/repos/${{ github.repository }}/actions/artifacts")
           
-          # Extract artifact IDs and delete them
-          artifact_ids=$(echo $artifacts | jq '.artifacts[] | select(.expired == false) | .id')
-          for id in $artifact_ids; do
-            echo "Deleting artifact with ID: $id"
-            curl -X DELETE \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$id"
-          done
+#           # Extract artifact IDs and delete them
+#           artifact_ids=$(echo $artifacts | jq '.artifacts[] | select(.expired == false) | .id')
+#           for id in $artifact_ids; do
+#             echo "Deleting artifact with ID: $id"
+#             curl -X DELETE \
+#               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+#               "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$id"
+#           done
