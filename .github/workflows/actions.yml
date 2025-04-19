@@ -145,7 +145,7 @@ jobs:
         run: |
           chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image_tag }} ${{ env.AWS_REGION }}
 
-  deploy:
+  trigger-deploy:
     runs-on: ubuntu-latest
     needs: [docker-image-scan]
     if: success()
@@ -194,7 +194,7 @@ jobs:
 
   notify-on-success:
     uses: NavabShariff/shared-library/.github/workflows/send-success-notification.yml@main
-    needs: [build, sast, docker-build-push, docker-image-scan]
+    needs: [build, sast, docker-build-push, docker-image-scan, trigger-deploy]
     if: success()
     secrets:
       smtp_server: ${{ secrets.SMTP_SERVER }}
@@ -209,7 +209,7 @@ jobs:
 
   notify-on-failure:
     uses: NavabShariff/shared-library/.github/workflows/send-failure-notification.yml@main
-    needs: [build, sast, docker-build-push, docker-image-scan, deploy]
+    needs: [build, sast, docker-build-push, docker-image-scan, trigger-deploy]
     if: failure() 
     secrets:
       smtp_server: ${{ secrets.SMTP_SERVER }}
