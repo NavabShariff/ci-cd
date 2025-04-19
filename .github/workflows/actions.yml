@@ -145,22 +145,22 @@ jobs:
         run: |
           chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image-tag }} ${{ env.AWS_REGION }}
 
-  notify-on-success:
-    runs-on: ubuntu-latest
-    needs: [build, sast, docker-build-push, docker-image-scan]
-    if: success()
-    steps:
-      - name: Send Success Notification Email
-        uses: NavabShariff/shared-library/.github/workflows/send-success-notification.yml@main
-        with:
-          smtp_server: ${{ secrets.SMTP_SERVER }}
-          smtp_username: ${{ secrets.SMTP_USERNAME }}
-          smtp_password: ${{ secrets.SMTP_PASSWORD }}
-          commit_author_name: ${{ github.event.pusher.name }}
-          commit_author_email: ${{ github.event.pusher.email }}
-          commit_message: ${{ github.event.head_commit.message }}
-          commit_id: ${{ github.sha }}
-          run_id: ${{ github.run_id }}
+  # notify-on-success:
+  #   runs-on: ubuntu-latest
+  #   needs: [build, sast, docker-build-push, docker-image-scan]
+  #   if: success()
+  #   steps:
+  #     - name: Send Success Notification Email
+  #       uses: NavabShariff/shared-library/.github/workflows/send-success-notification.yml@main
+  #       with:
+  #         smtp_server: ${{ secrets.SMTP_SERVER }}
+  #         smtp_username: ${{ secrets.SMTP_USERNAME }}
+  #         smtp_password: ${{ secrets.SMTP_PASSWORD }}
+  #         commit_author_name: ${{ github.event.pusher.name }}
+  #         commit_author_email: ${{ github.event.pusher.email }}
+  #         commit_message: ${{ github.event.head_commit.message }}
+  #         commit_id: ${{ github.sha }}
+  #         run_id: ${{ github.run_id }}
 
 
   notify-on-failure:
