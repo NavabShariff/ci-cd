@@ -134,3 +134,14 @@ docker compose -f docker-compose.yaml up -d
 ## Contact Information
 
 [Opstree Opensource](mailto:opensource@opstree.com)
+
+
+			<!-- <plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>9.0.9</version>
+				<configuration>
+					<nvdApiKey>7f77532c-ff0b-4972-a1d1-f6ed6f2bda7d</nvdApiKey>
+					<nvdApiDelay>6000</nvdApiDelay> <!-- Delay in milliseconds -->
+				</configuration>
+			</plugin> -->
