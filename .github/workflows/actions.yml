@@ -2,7 +2,14 @@ name: salary-api-build-pipeline
 
 on:
   push:
-    branches: ['main']
+    branches:
+      - dev
+      - 'feature/*'
+      - 'release/*'
+  pull_request:
+    branches:
+      - main
+
 
 
 permissions:
@@ -157,31 +164,30 @@ jobs:
         token: ${{ secrets.GH_TOKEN }}
 
     - name: Determine Deployment Environment Path
-      id: env-path
       run: |
         BRANCH_NAME="${GITHUB_REF##*/}"
         APP_NAME="${{ github.event.repository.name }}"
 
         if [[ "$BRANCH_NAME" == release-* ]]; then
-          echo "env_folder=$APP_NAME/overlays/staging" >> $GITHUB_OUTPUT
+          echo "ENV_FOLDER=$APP_NAME/overlays/staging" >> $GITHUB_ENV
         elif [[ "$BRANCH_NAME" == main || "$BRANCH_NAME" == master ]]; then
-          echo "env_folder=$APP_NAME/overlays/prod" >> $GITHUB_OUTPUT
+          echo "ENV_FOLDER=$APP_NAME/overlays/prod" >> $GITHUB_ENV
         else
-          echo "env_folder=$APP_NAME/overlays/dev" >> $GITHUB_OUTPUT
+          echo "ENV_FOLDER=$APP_NAME/overlays/dev" >> $GITHUB_ENV
         fi
 
     - name: Update Image Tag in kustomization.yaml
       run: |
         IMAGE_TAG=${{ github.ref_name }}-$(echo $GITHUB_SHA | head -c 8)
-        ENV_PATH="${{ steps.env-path.outputs.env_folder }}/kustomization.yaml"
 
-        if [[ -f "$ENV_PATH" ]]; then
-            sed -i "s|\(newTag: \).*|\1$IMAGE_TAG|" "$ENV_PATH"
-          echo "✅ Updated $ENV_PATH with image tag: $IMAGE_TAG"
+        if [[ -f "$ENV_FOLDER/kustomization.yaml" ]]; then
+          sed -i "s|\(newTag: \).*|\1$IMAGE_TAG|" "$ENV_FOLDER/kustomization.yaml"
+          echo "Updated $ENV_FOLDER/kustomization.yaml with image tag: $IMAGE_TAG"
         else
-          echo "❌ ERROR: Cannot find $ENV_PATH" >&2
+          echo "ERROR: Cannot find $ENV_FOLDER/kustomization.yaml" >&2
           exit 1
         fi
+
 
     - name: Commit and Push updated kustomization.yaml
       run: |
