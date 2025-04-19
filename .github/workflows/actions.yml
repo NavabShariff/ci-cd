@@ -149,10 +149,11 @@ jobs:
     uses: NavabShariff/shared-library/.github/workflows/send-success-notification.yml@main
     needs: [build, sast, docker-build-push, docker-image-scan]
     if: success()
-    with:
+    secrets:
       smtp_server: ${{ secrets.SMTP_SERVER }}
       smtp_username: ${{ secrets.SMTP_USERNAME }}
       smtp_password: ${{ secrets.SMTP_PASSWORD }}
+    with:
       commit_author_name: ${{ github.event.pusher.name }}
       commit_author_email: ${{ github.event.pusher.email }}
       commit_message: ${{ github.event.head_commit.message }}
