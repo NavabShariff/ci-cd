@@ -155,12 +155,10 @@ jobs:
       smtp_password: ${{ secrets.SMTP_PASSWORD }}
     with:
       commit_author_name: ${{ github.event.pusher.name }}
-      commit_author_email: ${{ github.event.pusher.email }}d
+      commit_author_email: ${{ github.event.pusher.email }}
       commit_message: ${{ github.event.head_commit.message }}
       commit_id: ${{ github.sha }}
       run_id: ${{ github.run_id }}
-    env:
-      ACTUAL_AUTHOR_EMAIL: ${{ (contains(github.event.pusher.email, 'noreply') && secrets.DEFAULT_EMAIL) || github.event.pusher.email }}
 
   notify-on-failure:
     uses: NavabShariff/shared-library/.github/workflows/send-failure-notification.yml@main
@@ -172,12 +170,11 @@ jobs:
       smtp_password: ${{ secrets.SMTP_PASSWORD }}
     with:
       commit_author_name: ${{ github.event.pusher.name }}
-      commit_author_email: ${{ env.ACTUAL_AUTHOR_EMAIL }}
+      commit_author_email: ${{ github.event.pusher.email }}
       commit_message: ${{ github.event.head_commit.message }}
       commit_id: ${{ github.sha }}
       run_id: ${{ github.run_id }}
-    env:
-      ACTUAL_AUTHOR_EMAIL: ${{ (contains(github.event.pusher.email, 'noreply') && secrets.DEFAULT_EMAIL) || github.event.pusher.email }}
+
   cleanup:
     runs-on: ubuntu-latest
     needs: [docker-image-scan, notify-on-success, notify-on-failure]
