@@ -151,7 +151,7 @@ jobs:
     if: success()
     steps:
     - name: Send Success Notification Email
-      uses: NavabShariff/shared-library/.github/workflows/send-success-notification@main
+      uses: NavabShariff/shared-library/.github/workflows/send-success-notification.yml@main
       with:
         smtp_server: ${{ secrets.SMTP_SERVER }}
         smtp_username: ${{ secrets.SMTP_USERNAME }}
