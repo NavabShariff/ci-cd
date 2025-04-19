@@ -162,18 +162,42 @@ jobs:
 
 
   notify-on-failure:
-    runs-on: ubuntu-latest
+    uses: NavabShariff/shared-library/.github/workflows/send-failure-notification.yml@main
     needs: [build, sast, docker-build-push, docker-image-scan]
     if: failure() 
+    secrets:
+      smtp_server: ${{ secrets.SMTP_SERVER }}
+      smtp_username: ${{ secrets.SMTP_USERNAME }}
+      smtp_password: ${{ secrets.SMTP_PASSWORD }}
+    with:
+      commit_author_name: ${{ github.event.pusher.name }}
+      commit_author_email: ${{ github.event.pusher.email }}
+      commit_message: ${{ github.event.head_commit.message }}
+      commit_id: ${{ github.sha }}
+      run_id: ${{ github.run_id }}
+
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: [docker-image-scan, notify-on-success, notify-on-failure]
+    if: always()
     steps:
-      - name: Send Failure Notification Email
-        uses: NavabShariff/shared-library/.github/actions/notification/send-failur-notification@main
-        with:
-          smtp_server: ${{ secrets.SMTP_SERVER }}
-          smtp_username: ${{ secrets.SMTP_USERNAME }}
-          smtp_password: ${{ secrets.SMTP_PASSWORD }}
-          commit_author_name: ${{ github.event.pusher.name }}
-          commit_author_email: ${{ github.event.pusher.email }}
-          commit_message: ${{ github.event.head_commit.message }}
-          commit_id: ${{ github.sha }}
-          run_id: ${{ github.run_id }}
+
+      - name: Install JQ
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Clean up uploaded artifacts
+        run: |
+          echo "Cleaning up uploaded artifacts..."
+          # Get the list of all artifacts in the current repository
+          artifacts=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/artifacts")
+          
+          # Extract artifact IDs and delete them
+          artifact_ids=$(echo $artifacts | jq '.artifacts[] | select(.expired == false) | .id')
+          for id in $artifact_ids; do
+            echo "Deleting artifact with ID: $id"
+            curl -X DELETE \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$id"
+          done
