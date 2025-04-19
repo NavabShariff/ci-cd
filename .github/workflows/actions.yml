@@ -172,7 +172,7 @@ jobs:
 
     - name: Update Image Tag in kustomization.yaml
       run: |
-        IMAGE_TAG="${{ needs.docker-build-push.outputs.image_tag: }}"
+        IMAGE_TAG="${{ needs.docker-build-push.outputs.image_tag }}"
         ENV_PATH="${{ steps.env-path.outputs.env_folder }}/kustomization.yaml"
 
         if [[ -f "$ENV_PATH" ]]; then
