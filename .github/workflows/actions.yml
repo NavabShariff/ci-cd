@@ -155,7 +155,7 @@ jobs:
       smtp_password: ${{ secrets.SMTP_PASSWORD }}
     with:
       commit_author_name: ${{ github.event.pusher.name }}
-      commit_author_email: ${{ github.event.pusher.email }}
+      commit_author_email: ${{ github.event.pusher.email }}d
       commit_message: ${{ github.event.head_commit.message }}
       commit_id: ${{ github.sha }}
       run_id: ${{ github.run_id }}
@@ -171,7 +171,8 @@ jobs:
       smtp_password: ${{ secrets.SMTP_PASSWORD }}
     with:
       commit_author_name: ${{ github.event.pusher.name }}
-      commit_author_email: ${{ github.event.pusher.email }}
+      commit_author_email: |
+        ${{ github.event.pusher.email == 'noreply@users.noreply.github.com' && secrets.DEFAULT_EMAIL || github.event.pusher.email }}
       commit_message: ${{ github.event.head_commit.message }}
       commit_id: ${{ github.sha }}
       run_id: ${{ github.run_id }}
