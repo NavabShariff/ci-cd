@@ -157,40 +157,40 @@ jobs:
           repository: NavabShariff/gitops-source
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Determine Deployment Environment Path
-        id: env-path
-        run: |
-          BRANCH_NAME="${GITHUB_REF##*/}"
-          APP_NAME="${{ github.event.repository.name }}"
+      # - name: Determine Deployment Environment Path
+      #   id: env-path
+      #   run: |
+      #     BRANCH_NAME="${GITHUB_REF##*/}"
+      #     APP_NAME="${{ github.event.repository.name }}"
 
-          if [[ "$BRANCH_NAME" == release-* ]]; then
-            echo "env_folder=$APP_NAME/overlays/staging" >> $GITHUB_OUTPUT
-          elif [[ "$BRANCH_NAME" == main || "$BRANCH_NAME" == master ]]; then
-            echo "env_folder=$APP_NAME/overlays/prod" >> $GITHUB_OUTPUT
-          else
-            echo "env_folder=$APP_NAME/overlays/dev" >> $GITHUB_OUTPUT
-          fi
+      #     if [[ "$BRANCH_NAME" == release-* ]]; then
+      #       echo "env_folder=$APP_NAME/overlays/staging" >> $GITHUB_OUTPUT
+      #     elif [[ "$BRANCH_NAME" == main || "$BRANCH_NAME" == master ]]; then
+      #       echo "env_folder=$APP_NAME/overlays/prod" >> $GITHUB_OUTPUT
+      #     else
+      #       echo "env_folder=$APP_NAME/overlays/dev" >> $GITHUB_OUTPUT
+      #     fi
 
-      - name: Update Image Tag in kustomization.yaml
-        run: |
-          IMAGE_TAG="${{ needs.docker-build-push.outputs.image-tag }}"
-          ENV_PATH="${{ steps.env-path.outputs.env_folder }}/kustomization.yaml"
+      # - name: Update Image Tag in kustomization.yaml
+      #   run: |
+      #     IMAGE_TAG="${{ needs.docker-build-push.outputs.image-tag }}"
+      #     ENV_PATH="${{ steps.env-path.outputs.env_folder }}/kustomization.yaml"
 
-          if [[ -f "$ENV_PATH" ]]; then
-            sed -i "s/\(newTag: \).*/\1$IMAGE_TAG/" "$ENV_PATH"
-            echo "✅ Updated $ENV_PATH with image tag: $IMAGE_TAG"
-          else
-            echo "❌ ERROR: Cannot find $ENV_PATH" >&2
-            exit 1
-          fi
+      #     if [[ -f "$ENV_PATH" ]]; then
+      #       sed -i "s/\(newTag: \).*/\1$IMAGE_TAG/" "$ENV_PATH"
+      #       echo "✅ Updated $ENV_PATH with image tag: $IMAGE_TAG"
+      #     else
+      #       echo "❌ ERROR: Cannot find $ENV_PATH" >&2
+      #       exit 1
+      #     fi
 
-      - name: Commit and Push updated kustomization.yaml
-        run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git add .
-          git commit -m "Deploy: Update image tag to $IMAGE_TAG for ${{ github.event.repository.name }} on branch ${GITHUB_REF##*/}"
-          git push
+      # - name: Commit and Push updated kustomization.yaml
+      #   run: |
+      #     git config --global user.name "${{ github.actor }}"
+      #     git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      #     git add .
+      #     git commit -m "Deploy: Update image tag to $IMAGE_TAG for ${{ github.event.repository.name }} on branch ${GITHUB_REF##*/}"
+      #     git push
 
 
   notify-on-success:
