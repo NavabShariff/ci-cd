@@ -7,6 +7,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.vars.outputs.image_tag }}
     steps:
       - name: Set Image Tags
         id: vars
@@ -17,4 +19,4 @@ jobs:
       
       - name: print image tag
         run: |
-           echo '${{ env.image_tag }}'
+           echo "${{ env.image_tag }}"
