@@ -19,4 +19,4 @@ jobs:
       
       - name: print image tag
         run: |
-           echo "${{ env.image_tag }}"
+           echo "${{ needs.test.outputs.image_tag }}"
