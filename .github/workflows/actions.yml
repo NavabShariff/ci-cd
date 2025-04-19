@@ -117,7 +117,34 @@ jobs:
         with:
           name: ecr-scan-file
           path: ecr-image-scan.sh
-          
+
+  ecr-scan-verify:
+    runs-on: ubuntu-latest
+    env: 
+      ECR_REPO: 'salary-api'
+      AWS_REGION: 'ap-south-1'
+    needs: docker-build-push
+    steps:
+      - name: Download ecr image scan file
+        uses: actions/download-artifact@v4
+        with:
+          name: ecr-scan-file
+          path: .
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
+          role-session-name: GitHubActionSession
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Install JQ
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Run ECR Vulnerability Scan Check
+        run: |
+          chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image-tag }} ${{ env.AWS_REGION }}
+
   notify-on-failure:
     runs-on: ubuntu-latest
     needs: [build, sast, docker-build-push]
