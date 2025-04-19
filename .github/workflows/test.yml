@@ -19,4 +19,4 @@ jobs:
       
       - name: print image tag
         run: |
-           echo "${{ needs.test.outputs.image_tag }}"
+           echo "${{ steps.vars.outputs.image_tag }}"
