@@ -72,7 +72,7 @@ jobs:
     - build
     - sast
     outputs:
-      image-tag: ${{ steps.vars.outputs.image_tag }}
+      image_tag: ${{ steps.vars.outputs.image_tag }}
       image-name: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}
     steps:
       - name: Download source code
@@ -143,7 +143,7 @@ jobs:
 
       - name: Run ECR Vulnerability Scan Check
         run: |
-          chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image-tag }} ${{ env.AWS_REGION }}
+          chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image_tag }} ${{ env.AWS_REGION }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -172,11 +172,11 @@ jobs:
 
     - name: Update Image Tag in kustomization.yaml
       run: |
-        IMAGE_TAG="${{ needs.docker-build-push.outputs.image-tag }}"
+        IMAGE_TAG="${{ needs.docker-build-push.outputs.image_tag: }}"
         ENV_PATH="${{ steps.env-path.outputs.env_folder }}/kustomization.yaml"
 
         if [[ -f "$ENV_PATH" ]]; then
-          sed -i "s/\(newTag: \).*/\1$IMAGE_TAG/" "$ENV_PATH"
+            sed -i "s|\(newTag: \).*|\1$IMAGE_TAG|" "$ENV_PATH"
           echo "✅ Updated $ENV_PATH with image tag: $IMAGE_TAG"
         else
           echo "❌ ERROR: Cannot find $ENV_PATH" >&2
@@ -209,7 +209,7 @@ jobs:
 
   notify-on-failure:
     uses: NavabShariff/shared-library/.github/workflows/send-failure-notification.yml@main
-    needs: [build, sast, docker-build-push, docker-image-scan]
+    needs: [build, sast, docker-build-push, docker-image-scan, deploy]
     if: failure() 
     secrets:
       smtp_server: ${{ secrets.SMTP_SERVER }}
