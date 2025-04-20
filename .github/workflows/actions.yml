@@ -37,7 +37,7 @@ jobs:
 
       - name: Build the Source Code
         run: |
-          mvn clean package -DskipTests
+          mvn clean compile -DskipTests
 
       - name: Upload Source Code
         uses: actions/upload-artifact@v4
@@ -180,7 +180,8 @@ jobs:
       commit_message: ${{ github.event.head_commit.message }}
       commit_id: ${{ github.sha }}
       run_id: ${{ github.run_id }}
-      failed_stage: ${{ github.job }}
+      # failed_stage: ${{ github.job }}
+      failed_stage: ${{ needs.build.result == 'failure' && 'build' || needs.sast.result == 'failure' && 'sast' || needs.docker-build-push.result == 'failure' && 'docker-build-push' || needs.docker-image-scan.result == 'failure' && 'docker-image-scan' || needs.trigger-CD.result == 'failure' && 'trigger-CD' || 'unknown' }}
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
