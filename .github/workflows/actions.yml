@@ -1,14 +1,18 @@
 name: salary-api-build-pipeline
 
-on:
-  push:
-    branches:
-      - dev
-      - 'feature/*'
-      - 'release/*'
-  pull_request:
-    branches:
-      - main
+
+on: 
+  push: 
+    branches: ['main']
+# on:
+#   push:
+#     branches:
+#       - dev
+#       - 'feature/*'
+#       - 'release/*'
+#   pull_request:
+#     branches:
+#       - main
 
 
 
@@ -152,7 +156,7 @@ jobs:
         run: |
           chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image_tag }} ${{ env.AWS_REGION }}
 
-  trigger-deploy:
+  trigger-CD:
     runs-on: ubuntu-latest
     needs: [docker-image-scan]
     if: success()
@@ -197,36 +201,63 @@ jobs:
         git commit -m "Deploy: Update image tag to $IMAGE_TAG for ${{ github.event.repository.name }} on branch ${GITHUB_REF##*/}"
         git push
 
-
   notify-on-success:
-    uses: NavabShariff/shared-library/.github/workflows/send-success-notification.yml@main
-    needs: [build, sast, docker-build-push, docker-image-scan, trigger-deploy]
+    uses: NavabShariff/shared-library/.github/workflows/send-slack-alert.yml@main
+    needs: [build, sast, docker-build-push, docker-image-scan, trigger-CD]
     if: success()
-    secrets:
-      smtp_server: ${{ secrets.SMTP_SERVER }}
-      smtp_username: ${{ secrets.SMTP_USERNAME }}
-      smtp_password: ${{ secrets.SMTP_PASSWORD }}
     with:
+      status: success
       commit_author_name: ${{ github.event.pusher.name }}
-      commit_author_email: ${{ github.event.pusher.email }}
       commit_message: ${{ github.event.head_commit.message }}
       commit_id: ${{ github.sha }}
       run_id: ${{ github.run_id }}
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   notify-on-failure:
-    uses: NavabShariff/shared-library/.github/workflows/send-failure-notification.yml@main
-    needs: [build, sast, docker-build-push, docker-image-scan, trigger-deploy]
-    if: failure() 
-    secrets:
-      smtp_server: ${{ secrets.SMTP_SERVER }}
-      smtp_username: ${{ secrets.SMTP_USERNAME }}
-      smtp_password: ${{ secrets.SMTP_PASSWORD }}
+    uses: NavabShariff/shared-library/.github/workflows/send-slack-alert.yml@main
+    needs: [build, sast, docker-build-push, docker-image-scan, trigger-CD]
+    if: failure()
     with:
+      status: failure
       commit_author_name: ${{ github.event.pusher.name }}
-      commit_author_email: ${{ github.event.pusher.email }}
       commit_message: ${{ github.event.head_commit.message }}
       commit_id: ${{ github.sha }}
       run_id: ${{ github.run_id }}
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+
+
+  # notify-on-success:
+  #   uses: NavabShariff/shared-library/.github/workflows/send-success-notification.yml@main
+  #   needs: [build, sast, docker-build-push, docker-image-scan, trigger-deploy]
+  #   if: success()
+  #   secrets:
+  #     smtp_server: ${{ secrets.SMTP_SERVER }}
+  #     smtp_username: ${{ secrets.SMTP_USERNAME }}
+  #     smtp_password: ${{ secrets.SMTP_PASSWORD }}
+  #   with:
+  #     commit_author_name: ${{ github.event.pusher.name }}
+  #     commit_author_email: ${{ github.event.pusher.email }}
+  #     commit_message: ${{ github.event.head_commit.message }}
+  #     commit_id: ${{ github.sha }}
+  #     run_id: ${{ github.run_id }}
+
+  # notify-on-failure:
+  #   uses: NavabShariff/shared-library/.github/workflows/send-failure-notification.yml@main
+  #   needs: [build, sast, docker-build-push, docker-image-scan, trigger-deploy]
+  #   if: failure() 
+  #   secrets:
+  #     smtp_server: ${{ secrets.SMTP_SERVER }}
+  #     smtp_username: ${{ secrets.SMTP_USERNAME }}
+  #     smtp_password: ${{ secrets.SMTP_PASSWORD }}
+  #   with:
+  #     commit_author_name: ${{ github.event.pusher.name }}
+  #     commit_author_email: ${{ github.event.pusher.email }}
+  #     commit_message: ${{ github.event.head_commit.message }}
+  #     commit_id: ${{ github.sha }}
+  #     run_id: ${{ github.run_id }}
 
   cleanup:
     runs-on: ubuntu-latest
