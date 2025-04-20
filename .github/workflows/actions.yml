@@ -156,41 +156,6 @@ jobs:
         run: |
           chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image_tag }} ${{ env.AWS_REGION }}
 
-  trigger-CD:
-    runs-on: ubuntu-latest
-    needs: [docker-image-scan]
-    if: success()
-    steps:
-    - name: Checkout GitOps repository
-      uses: actions/checkout@v4
-      with:
-        repository: NavabShariff/gitops-source
-        token: ${{ secrets.GH_TOKEN }}
-
-    - name: Determine Deployment Environment Path
-      run: |
-        BRANCH_NAME="${GITHUB_REF##*/}"
-        APP_NAME="${{ github.event.repository.name }}"
-
-        if [[ "$BRANCH_NAME" == release-* ]]; then
-          echo "ENV_FOLDER=$APP_NAME/overlays/staging" >> $GITHUB_ENV
-        elif [[ "$BRANCH_NAME" == main || "$BRANCH_NAME" == master ]]; then
-          echo "ENV_FOLDER=$APP_NAME/overlays/prod" >> $GITHUB_ENV
-        else
-          echo "ENV_FOLDER=$APP_NAME/overlays/dev" >> $GITHUB_ENV
-        fi
-
-    - name: Update Image Tag in kustomization.yaml
-      run: |
-        IMAGE_TAG=${{ github.ref_name }}-$(echo $GITHUB_SHA | head -c 8)
-
-        if [[ -f "$ENV_FOLDER/kustomization.yaml" ]]; then
-          sed -i "s|\(newTag: \).*|\1$IMAGE_TAG|" "$ENV_FOLDER/kustomization.yaml"
-          echo "Updated $ENV_FOLDER/kustomization.yaml with image tag: $IMAGE_TAG"
-        else
-          echo "ERROR: Cannot find $ENV_FOLDER/kustomization.yaml" >&2
-          exit 1
-        fi
 
 
     - name: Commit and Push updated kustomization.yaml
@@ -203,7 +168,7 @@ jobs:
 
   notify-on-success:
     uses: NavabShariff/shared-library/.github/workflows/send-slack-alert.yml@main
-    needs: [build, sast, docker-build-push, docker-image-scan, trigger-CD]
+    needs: [build, sast, docker-build-push, docker-image-scan]
     if: success()
     with:
       status: success
@@ -284,3 +249,39 @@ jobs:
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$id"
           done
+
+  trigger-CD:
+    runs-on: ubuntu-latest
+    needs: [docker-image-scan]
+    if: success()
+    steps:
+    - name: Checkout GitOps repository
+      uses: actions/checkout@v4
+      with:
+        repository: NavabShariff/gitops-source
+        token: ${{ secrets.GH_TOKEN }}
+
+    - name: Determine Deployment Environment Path
+      run: |
+        BRANCH_NAME="${GITHUB_REF##*/}"
+        APP_NAME="${{ github.event.repository.name }}"
+
+        if [[ "$BRANCH_NAME" == release-* ]]; then
+          echo "ENV_FOLDER=$APP_NAME/overlays/staging" >> $GITHUB_ENV
+        elif [[ "$BRANCH_NAME" == main || "$BRANCH_NAME" == master ]]; then
+          echo "ENV_FOLDER=$APP_NAME/overlays/prod" >> $GITHUB_ENV
+        else
+          echo "ENV_FOLDER=$APP_NAME/overlays/dev" >> $GITHUB_ENV
+        fi
+
+    - name: Update Image Tag in kustomization.yaml
+      run: |
+        IMAGE_TAG=${{ github.ref_name }}-$(echo $GITHUB_SHA | head -c 8)
+
+        if [[ -f "$ENV_FOLDER/kustomization.yaml" ]]; then
+          sed -i "s|\(newTag: \).*|\1$IMAGE_TAG|" "$ENV_FOLDER/kustomization.yaml"
+          echo "Updated $ENV_FOLDER/kustomization.yaml with image tag: $IMAGE_TAG"
+        else
+          echo "ERROR: Cannot find $ENV_FOLDER/kustomization.yaml" >&2
+          exit 1
+        fi
