@@ -27,7 +27,7 @@ echo "=== Vulnerabilities Summary ==="
 echo "CRITICAL: $CRITICAL"
 echo "==============================="
 
-if [[ "$CRITICAL" -gt 5 ]]; then
+if [[ "$CRITICAL" -gt 1 ]]; then
   echo "Image has $CRITICAL CRITICAL vulnerabilities! Failing pipeline."
   exit 1
 fi
