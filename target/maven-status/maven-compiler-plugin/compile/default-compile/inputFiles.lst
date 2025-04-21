@@ -1,7 +1,0 @@
-/home/navabshariff/shariff/ci-cd/src/main/java/com/opstree/microservice/salary/model/Message.java
-/home/navabshariff/shariff/ci-cd/src/main/java/com/opstree/microservice/salary/config/OpenAPIConfig.java
-/home/navabshariff/shariff/ci-cd/src/main/java/com/opstree/microservice/salary/contollers/SpringDataController.java
-/home/navabshariff/shariff/ci-cd/src/main/java/com/opstree/microservice/salary/repository/EmployeeRepository.java
-/home/navabshariff/shariff/ci-cd/src/main/java/com/opstree/microservice/salary/SalaryApplication.java
-/home/navabshariff/shariff/ci-cd/src/main/java/com/opstree/microservice/salary/model/Employee.java
-/home/navabshariff/shariff/ci-cd/src/main/java/com/opstree/microservice/salary/service/SpringDataSalaryService.java

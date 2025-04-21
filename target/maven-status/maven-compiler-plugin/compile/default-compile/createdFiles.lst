@@ -1,8 +1,0 @@
-com/opstree/microservice/salary/model/Employee$EmployeeBuilder.class
-com/opstree/microservice/salary/swagger/OpenAPIConfig.class
-com/opstree/microservice/salary/SalaryApplication.class
-com/opstree/microservice/salary/model/Employee.class
-com/opstree/microservice/salary/service/SpringDataSalaryService.class
-com/opstree/microservice/salary/controller/SpringDataController.class
-com/opstree/microservice/salary/repository/EmployeeRepository.class
-com/opstree/microservice/salary/model/Message.class
