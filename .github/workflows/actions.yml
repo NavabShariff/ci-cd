@@ -65,12 +65,12 @@ jobs:
     - name: check files
       run: | 
        ls -l target/
-       
-    - name: Upload Bug report
-      uses: actions/upload@v4
-      with:
-        name: bug-report
-        path: target/spotbugsXml.xml
+
+    # - name: Upload Bug report
+    #   uses: actions/upload@v4
+    #   with:
+    #     name: bug-report
+    #     path: target/spotbugsXml.xml
 
   sast:
     runs-on: ubuntu-latest
