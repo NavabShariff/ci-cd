@@ -61,8 +61,12 @@ jobs:
 
     - name: Bug Analysis
       run: mvn com.github.spotbugs:spotbugs-maven-plugin:4.7.3.0:spotbugs
-
-
+  
+    - name: Upload Bug report
+      uses: actions/upload@v4
+      with:
+        name: bug-report
+        path: target/spotbugsXml.xml
 
   sast:
     runs-on: ubuntu-latest
@@ -76,6 +80,16 @@ jobs:
       with:
         name: source-code
         path: .
+    
+    - name: Download Bug report
+      uses: actions/download-artifact@v4
+      with:
+        name: bug-report
+        path: target
+
+    - name: Check files
+      run: |
+        ls -l target/
 
     - name: Scanning of compile code and send scanning report along with codecoverage report to SonarQube server
       run: |
