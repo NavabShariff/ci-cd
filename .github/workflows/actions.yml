@@ -58,7 +58,7 @@ jobs:
       with:
         name: source-code
         path: .
-        
+
     - name: Bug Analysis
       run: mvn com.github.spotbugs:spotbugs-maven-plugin:4.7.3.0:spotbugs
 
@@ -89,7 +89,7 @@ jobs:
           -Dsonar.sources=src/main/java \
           -Dsonar.tests=src/test/java \
           -Dsonar.java.binaries=target/classes \
-          -Dsonar.spotbugs.reportPaths=target/spotbugs.xml \
+          -Dsonar.spotbugs.reportPaths=target/spotbugsXml.xml \
           -Dsonar.qualitygate.wait=true
         
   # docker-build-push:
