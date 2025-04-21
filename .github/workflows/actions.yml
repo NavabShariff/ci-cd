@@ -37,7 +37,7 @@ jobs:
 
       - name: Build the Source Code
         run: |
-          mvn clean compile -DskipTests
+          mvn clean compile
 
       - name: Upload Source Code
         uses: actions/upload-artifact@v4
