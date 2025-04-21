@@ -242,7 +242,7 @@ jobs:
 
   cleanup:
     runs-on: ubuntu-latest
-    needs: [docker-image-scan, notify-on-success, notify-on-failure]
+    needs: [docker-image-scan, notify]
     if: always()
     steps:
 
