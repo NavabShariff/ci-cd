@@ -253,28 +253,28 @@ jobs:
   #   secrets:
   #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-  cleanup:
-    runs-on: ubuntu-latest
-    needs: [docker-image-scan, notify]
-    if: always()
-    steps:
+  # cleanup:
+    # runs-on: ubuntu-latest
+    # needs: [docker-image-scan, notify]
+    # if: always()
+    # steps:
 
-      - name: Install JQ
-        run: sudo apt-get update && sudo apt-get install -y jq
+    #   - name: Install JQ
+    #     run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Clean up uploaded artifacts
-        run: |
-          echo "Cleaning up uploaded artifacts..."
-          # Get the list of all artifacts in the current repository
-          artifacts=$(curl -s \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/artifacts")
+    #   - name: Clean up uploaded artifacts
+    #     run: |
+    #       echo "Cleaning up uploaded artifacts..."
+    #       # Get the list of all artifacts in the current repository
+    #       artifacts=$(curl -s \
+    #         -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+    #         "https://api.github.com/repos/${{ github.repository }}/actions/artifacts")
           
-          # Extract artifact IDs and delete them
-          artifact_ids=$(echo $artifacts | jq '.artifacts[] | select(.expired == false) | .id')
-          for id in $artifact_ids; do
-            echo "Deleting artifact with ID: $id"
-            curl -X DELETE \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$id"
-          done
+    #       # Extract artifact IDs and delete them
+    #       artifact_ids=$(echo $artifacts | jq '.artifacts[] | select(.expired == false) | .id')
+    #       for id in $artifact_ids; do
+    #         echo "Deleting artifact with ID: $id"
+    #         curl -X DELETE \
+    #           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+    #           "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$id"
+    #       done
