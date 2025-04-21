@@ -120,7 +120,6 @@
 			<executions>
 				<execution>
 				<phase>verify</phase>
-				<!-- <phase>verify</phase> -->
 				<goals>
 					<goal>check</goal>
 				</goals>

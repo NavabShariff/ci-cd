@@ -4,6 +4,7 @@ on:
   push: 
     branches: ['main']
 
+
 # on:
 #   push:
 #     branches:
@@ -196,13 +197,14 @@ jobs:
         git add .
         git commit -m "Deploy: Update image tag to $IMAGE_TAG for ${{ github.event.repository.name }} on branch ${GITHUB_REF##*/}"
         git push
-        
-  notify-on-success:
+
+
+  notify:
     uses: NavabShariff/shared-library/.github/workflows/send-slack-alert.yml@main
-    needs: [build, sast, docker-build-push, docker-image-scan]
-    if: success()
+    needs: [build, sast, docker-build-push, docker-image-scan, trigger-CD]  # Just update here if new jobs added
+    if: always()
     with:
-      status: success
+      status: ${{ contains(join(needs.*.result, ' '), 'failure') && 'failure' || 'success' }}
       commit_author_name: ${{ github.event.pusher.name }}
       commit_message: ${{ github.event.head_commit.message }}
       commit_id: ${{ github.sha }}
@@ -210,18 +212,33 @@ jobs:
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-  notify-on-failure:
-    uses: NavabShariff/shared-library/.github/workflows/send-slack-alert.yml@main
-    needs: [build, sast, docker-build-push, docker-image-scan, trigger-CD]
-    if: failure()
-    with:
-      status: failure
-      commit_author_name: ${{ github.event.pusher.name }}
-      commit_message: ${{ github.event.head_commit.message }}
-      commit_id: ${{ github.sha }}
-      run_id: ${{ github.run_id }}
-    secrets:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+
+  # notify-on-success:
+  #   uses: NavabShariff/shared-library/.github/workflows/send-slack-alert.yml@main
+  #   needs: [build, sast, docker-build-push, docker-image-scan]
+  #   if: success()
+  #   with:
+  #     status: success
+  #     commit_author_name: ${{ github.event.pusher.name }}
+  #     commit_message: ${{ github.event.head_commit.message }}
+  #     commit_id: ${{ github.sha }}
+  #     run_id: ${{ github.run_id }}
+  #   secrets:
+  #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # notify-on-failure:
+  #   uses: NavabShariff/shared-library/.github/workflows/send-slack-alert.yml@main
+  #   needs: [build, sast, docker-build-push, docker-image-scan, trigger-CD]
+  #   if: failure()
+  #   with:
+  #     status: failure
+  #     commit_author_name: ${{ github.event.pusher.name }}
+  #     commit_message: ${{ github.event.head_commit.message }}
+  #     commit_id: ${{ github.sha }}
+  #     run_id: ${{ github.run_id }}
+  #   secrets:
+  #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   cleanup:
     runs-on: ubuntu-latest
