@@ -62,6 +62,10 @@ jobs:
     - name: Bug Analysis
       run: mvn com.github.spotbugs:spotbugs-maven-plugin:4.7.3.0:spotbugs
   
+    - name: check files
+      run: | 
+       ls -l target/
+       
     - name: Upload Bug report
       uses: actions/upload@v4
       with:
