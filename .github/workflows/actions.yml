@@ -70,7 +70,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: bug-report
-        path: target/spotbugsXml.xml
+        path: target/*.xml
 
   sast:
     runs-on: ubuntu-latest
@@ -107,7 +107,7 @@ jobs:
           -Dsonar.sources=src/main/java \
           -Dsonar.tests=src/test/java \
           -Dsonar.java.binaries=target/classes \
-          -Dsonar.spotbugs.reportPaths=target/spotbugsXml.xml \
+          -Dsonar.spotbugs.reportPaths=target/spotbugs.xml \
           -Dsonar.qualitygate.wait=true
         
   # docker-build-push:
