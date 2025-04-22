@@ -50,15 +50,15 @@ jobs:
         name: source-code
         path: .
 
-      - name: Build the Source Code
-        run: |
-          mvn clean package -DskipTests
+    - name: Build the Source Code
+      run: |
+        mvn clean package -DskipTests
 
-      - name: Upload Compile files target folder
-        uses: actions/upload-artifact@v4
-        with:
-          name: compile-files
-          path: target/*
+    - name: Upload Compile files target folder
+      uses: actions/upload-artifact@v4
+      with:
+        name: compile-files
+        path: target/*
 
 
   bug-analysis:
