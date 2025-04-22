@@ -282,7 +282,7 @@ jobs:
       - name: Run ZAP scan
         run: |
           sleep 30
-          docker run --network host -u root -v $(pwd):/zap/wrk ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://localhost:8080 -J report.json -z "-config urls.file=/zap/wrk/urls.txt"
+          docker run --network host -u root -v $(pwd):/zap/wrk ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://localhost:8080 -r report.html -z "-config urls.file=/zap/wrk/urls.txt"
 
       - name: check report files
         run: | 
