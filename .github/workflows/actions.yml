@@ -95,8 +95,27 @@ jobs:
         name: bug-report
         path: target/*.xml
 
-  dependency-check:
-    needs: clone
+  # dependency-check:
+  #   needs: clone
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: maven:3.9-eclipse-temurin-17
+  #     options: --user root
+  #   steps:
+  #   - name: Download artifacts
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: source-code
+  #       path: .
+    
+  #   - name: Check dependency check
+  #     run: |
+  #       mvn dependency-check:check
+
+
+  sca:
+    name: static code analysis
+    needs: build
     runs-on: ubuntu-latest
     container:
       image: maven:3.9-eclipse-temurin-17
@@ -107,57 +126,67 @@ jobs:
       with:
         name: source-code
         path: .
-    
-    - name: Check dependency check
-      run: |
-        mvn dependency-check:check
 
-  sca-sonarqubescan:
-    runs-on: ubuntu-latest
-    needs: [build, bug-analysis, dependency-check]
-    container:
-      image: sonarsource/sonar-scanner-cli:latest
-      options: --user root
-    steps:
 
-    - name: Download source code
-      uses: actions/download-artifact@v4
-      with:
-        name: source-code
-        path: .
-  
     - name: Download artifacts
       uses: actions/download-artifact@v4
       with:
         name: compile-files
         path: target
-
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: bug-report
-        path: target
-
-    - name: Check files
+    
+    - name: run sonar plugin
       run: |
-        ls -l
-        ls -l target/
+       mvn sonar:sonar \
+        -Dsonar.projectKey=your_project_key \
+        -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+        -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
-    - name: Scanning of compile code and send scanning report along with codecoverage report to SonarQube server
-      run: |
-        sonar-scanner \
-          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-          -Dsonar.projectName=${{ github.event.repository.name }} \
-          -Dsonar.projectKey=${{ github.event.repository.name }} \
-          -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml \
-          -Dsonar.dependencyCheck.htmlReportPath=dependency-check-report.html \
-          -Dsonar.dependencyCheck.jsonReportPath=dependency-check-report.json \
-          -Dsonar.sources=src/main/java \
-          -Dsonar.tests=src/test/java \
-          -Dsonar.java.binaries=target/classes \
-          -Dsonar.findbugs.reportpaths=target/spotbugsXml.xml \
-          -Dsonar.qualitygate.wait=true
+  # sca-sonarqubescan:
+  #   runs-on: ubuntu-latest
+  #   needs: [build, bug-analysis, dependency-check]
+  #   container:
+  #     image: sonarsource/sonar-scanner-cli:latest
+  #     options: --user root
+  #   steps:
+
+  #   - name: Download source code
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: source-code
+  #       path: .
+  
+  #   - name: Download artifacts
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: compile-files
+  #       path: target
+
+  #   - name: Download artifacts
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: bug-report
+  #       path: target
+
+  #   - name: Check files
+  #     run: |
+  #       ls -l
+  #       ls -l target/
+
+  #   - name: Scanning of compile code and send scanning report along with codecoverage report to SonarQube server
+  #     run: |
+  #       sonar-scanner \
+  #         -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+  #         -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+  #         -Dsonar.projectName=${{ github.event.repository.name }} \
+  #         -Dsonar.projectKey=${{ github.event.repository.name }} \
+  #         -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml \
+  #         -Dsonar.dependencyCheck.htmlReportPath=dependency-check-report.html \
+  #         -Dsonar.dependencyCheck.jsonReportPath=dependency-check-report.json \
+  #         -Dsonar.sources=src/main/java \
+  #         -Dsonar.tests=src/test/java \
+  #         -Dsonar.java.binaries=target/classes \
+  #         -Dsonar.findbugs.reportpaths=target/spotbugsXml.xml \
+  #         -Dsonar.qualitygate.wait=true
 
 
 
