@@ -282,6 +282,7 @@ jobs:
           sleep 30
           docker run --rm --network host \
             -v $(pwd):/zap/wrk \
+            -u $(id -u):$(id -g) \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py -t http://localhost:8080/salary-documentation \
             -r zap-report.html || true
