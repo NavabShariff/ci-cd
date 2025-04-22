@@ -222,6 +222,15 @@ jobs:
           name: ecr-scan-file
           path: ecr-image-scan.sh
 
+      - name: Save Docker image to file
+        run: docker save ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }} | gzip > salary-api-image.tar.gz
+
+      - name: Upload image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuilt-salary-api-image
+          path: salary-api-image.tar.gz
+
   # docker-image-scan:
   #   runs-on: ubuntu-latest
   #   env: 
@@ -261,6 +270,14 @@ jobs:
         with:
           path: .
 
+      - name: Download prebuilt image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: prebuilt-salary-api-image
+          path: .
+
+      - name: Load Docker image
+        run: gunzip -c salary-api-image.tar.gz | docker load
 
       - name: Start application
         run: |
