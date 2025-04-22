@@ -283,10 +283,7 @@ jobs:
           docker run -u root --network host \
             -v $(pwd):/zap/wrk \
             ghcr.io/zaproxy/zaproxy:stable \
-            zap-baseline.py -t http://localhost:8080/salary-documentation -r report.html
-
-
-
+            zap-baseline.py -t http://localhost:8080/swagger-ui/index.html -r report.html
 
       - name: check report files
         run: | 
