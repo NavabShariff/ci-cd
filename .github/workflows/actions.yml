@@ -283,7 +283,8 @@ jobs:
           docker run -u root --network host \
             -v $(pwd):/zap/wrk \
             ghcr.io/zaproxy/zaproxy:stable \
-            zap-baseline.py -t http://localhost:8080/swagger-ui/index.html -r report.html
+            zap-baseline.py -t http://localhost:8080 -r report.html \
+            -z "-config urls.file=/zap/wrk/urls.txt"
 
       - name: check report files
         run: | 
