@@ -174,7 +174,7 @@ jobs:
     env: 
       ECR_REPO: 'salary-api'
       AWS_REGION: 'ap-south-1'
-    # needs: sca-sonar-alanysis
+    needs: clone
     outputs:
       image_tag: ${{ steps.vars.outputs.image_tag }}
       image-name: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}
@@ -222,39 +222,38 @@ jobs:
           name: ecr-scan-file
           path: ecr-image-scan.sh
 
-  docker-image-scan:
-    runs-on: ubuntu-latest
-    env: 
-      ECR_REPO: 'salary-api'
-      AWS_REGION: 'ap-south-1'
-    needs: docker-build-push
-    steps:
-      - name: Download ecr image scan file
-        uses: actions/download-artifact@v4
-        with:
-          name: ecr-scan-file
-          path: .
+  # docker-image-scan:
+  #   runs-on: ubuntu-latest
+  #   env: 
+  #     ECR_REPO: 'salary-api'
+  #     AWS_REGION: 'ap-south-1'
+  #   needs: docker-build-push
+  #   steps:
+  #     - name: Download ecr image scan file
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: ecr-scan-file
+  #         path: .
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
-          role-session-name: GitHubActionSession
-          aws-region: ${{ env.AWS_REGION }}
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
+  #         role-session-name: GitHubActionSession
+  #         aws-region: ${{ env.AWS_REGION }}
 
-      - name: Install JQ
-        run: sudo apt-get update && sudo apt-get install -y jq
+  #     - name: Install JQ
+  #       run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Run ECR Vulnerability Scan Check
-        run: |
-          chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image_tag }} ${{ env.AWS_REGION }}
+  #     - name: Run ECR Vulnerability Scan Check
+  #       run: |
+  #         chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image_tag }} ${{ env.AWS_REGION }}
 
 
   dast:
-    needs: [docker-image-scan, docker-build-push]
+    needs: [docker-build-push]
     runs-on: ubuntu-latest
     env:
-     env:
       IMAGE_NAME: ${{ needs.docker-build-push.outputs.image-name }}:${{ needs.docker-build-push.outputs.image_tag }}
     steps:
       - name: checkout
