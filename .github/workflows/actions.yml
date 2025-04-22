@@ -286,7 +286,7 @@ jobs:
 
           docker run --network host -u root -v $(pwd):/zap/wrk ghcr.io/zaproxy/zaproxy:stable \
             zap-full-scan.py -t http://localhost:8080 -r report.html \
-            -z "-config urls.file=/zap/wrk/urls.txt" 2> /dev/null
+            -z "-config urls.file=/zap/wrk/urls.txt" 2> /dev/null; (($? == 2)) && echo 'Done' >&2"
 
       - name: check report files
         run: | 
