@@ -69,8 +69,8 @@ services:
 #       MAVEN_OPTS: "-Xmx1024m"
 
   salary-api:
-    build: .
-    # image: salary-api:1
+    # build: .
+    image: salary-api:1
     container_name: salary-api
     ports:
       - "8080:8080"

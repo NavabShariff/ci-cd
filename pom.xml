@@ -132,9 +132,7 @@
 				<!-- <failBuildOnCVSS>7.0</failBuildOnCVSS> -->
 				<!-- Output all 3 formats -->
 				<formats>
-				<format>XML</format>
 				<format>HTML</format>
-				<format>JSON</format>
 				</formats>
 
 				<!-- Output directory (Sonar expects this path) -->
