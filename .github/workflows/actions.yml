@@ -114,7 +114,7 @@ jobs:
 
   sca-sonarqubescan:
     runs-on: ubuntu-latest
-    needs: [build, bug-analysis]
+    needs: [build, bug-analysis, dependency-check]
     container:
       image: sonarsource/sonar-scanner-cli:latest
       options: --user root
