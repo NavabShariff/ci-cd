@@ -128,7 +128,8 @@
 			</executions>
 			<configuration>
 				<nvdApiKey>7f77532c-ff0b-4972-a1d1-f6ed6f2bda7d</nvdApiKey>
-				
+				<assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+				<failBuildOnCVSS>7.0</failBuildOnCVSS>
 				<!-- Output all 3 formats -->
 				<formats>
 				<format>XML</format>

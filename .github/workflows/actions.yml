@@ -24,26 +24,41 @@ permissions:
 
 jobs:
 
+  clone:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout code
+      uses: actions/checkout@v4
+
+    - name: Upload Source Code
+      uses: actions/upload-artifact@v4
+      with:
+        name: source-code
+        path: .
+
   build:
+    needs: clone
     runs-on: ubuntu-latest
     container:
       image: maven:3.9-eclipse-temurin-17
       options: --user root
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          path: .
+ 
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: source-code
+        path: .
 
       - name: Build the Source Code
         run: |
           mvn clean package -DskipTests
 
-      - name: Upload Source Code
+      - name: Upload Compile files target folder
         uses: actions/upload-artifact@v4
         with:
-          name: source-code
-          path: .
+          name: compile-files
+          path: target/*
 
 
   bug-analysis:
@@ -70,7 +85,7 @@ jobs:
         path: target/*.xml
 
   dependency-check:
-    needs: build
+    needs: clone
     runs-on: ubuntu-latest
     steps:
     - name: Download artifacts
