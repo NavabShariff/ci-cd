@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SalaryApplication.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">salary</a> &gt; <a href="index.source.html" class="el_package">com.opstree.microservice.salary</a> &gt; <span class="el_source">SalaryApplication.java</span></div><h1>SalaryApplication.java</h1><pre class="source lang-java linenums">package com.opstree.microservice.salary;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
+import org.springframework.context.annotation.Bean;
+import com.opstree.microservice.salary.model.Employee;
+
+import java.time.Duration;
+
+import org.springframework.cache.annotation.EnableCaching;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+
+@SpringBootApplication
+@EnableCaching
+<span class="fc" id="L22">public class SalaryApplication {</span>
+
+  @Bean
+  public RedisTemplate&lt;Object, Object&gt; redisTemplate(RedisConnectionFactory connectionFactory) {
+<span class="fc" id="L26">    RedisTemplate&lt;Object, Object&gt; template = new RedisTemplate&lt;&gt;();</span>
+<span class="fc" id="L27">    template.setConnectionFactory(connectionFactory);</span>
+<span class="fc" id="L28">    Jackson2JsonRedisSerializer&lt;Employee&gt; serializer = new Jackson2JsonRedisSerializer&lt;&gt;(Employee.class);</span>
+<span class="fc" id="L29">    template.setDefaultSerializer(serializer);</span>
+<span class="fc" id="L30">    return template;</span>
+  }
+
+  @Bean
+  public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+<span class="fc" id="L35">    RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig() //</span>
+<span class="fc" id="L36">        .prefixCacheNameWith(this.getClass().getPackageName() + &quot;.&quot;) //</span>
+<span class="fc" id="L37">        .entryTtl(Duration.ofSeconds(1)) //</span>
+<span class="fc" id="L38">        .disableCachingNullValues();</span>
+
+<span class="fc" id="L40">    return RedisCacheManager.builder(connectionFactory) //</span>
+<span class="fc" id="L41">        .cacheDefaults(config) //</span>
+<span class="fc" id="L42">        .build();</span>
+  }
+
+	public static void main(String[] args) {
+<span class="nc" id="L46">		SpringApplication.run(SalaryApplication.class, args);</span>
+<span class="nc" id="L47">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

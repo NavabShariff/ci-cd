@@ -1,0 +1,4 @@
+com/opstree/microservice/salary/SalaryApplicationTests.class
+com/opstree/microservice/salary/swagger/OpenAPIConfigTest.class
+com/opstree/microservice/salary/model/EmployeeTest.class
+com/opstree/microservice/salary/model/MessageTest.class

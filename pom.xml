@@ -117,6 +117,7 @@
 			<plugin>
 			<groupId>org.owasp</groupId>
 			<artifactId>dependency-check-maven</artifactId>
+			<version>8.4.0</version> <!-- (or latest stable) -->
 			<executions>
 				<execution>
 				<phase>verify</phase>
@@ -127,9 +128,16 @@
 			</executions>
 			<configuration>
 				<nvdApiKey>7f77532c-ff0b-4972-a1d1-f6ed6f2bda7d</nvdApiKey>
+				
+				<!-- Output all 3 formats -->
 				<formats>
 				<format>XML</format>
+				<format>HTML</format>
+				<format>JSON</format>
 				</formats>
+
+				<!-- Output directory (Sonar expects this path) -->
+				<outputDirectory>${project.basedir}</outputDirectory>
 			</configuration>
 			</plugin>
 			<plugin>

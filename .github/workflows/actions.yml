@@ -24,66 +24,77 @@ permissions:
 
 jobs:
 
-  build:
-    runs-on: ubuntu-latest
-    container:
-      image: maven:3.9-eclipse-temurin-17
-      options: --user root
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          path: .
+  # build:
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: maven:3.9-eclipse-temurin-17
+  #     options: --user root
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v4
+  #       with:
+  #         path: .
 
-      - name: Build the Source Code
-        run: |
-          mvn clean package -DskipTests
+  #     - name: Build the Source Code
+  #       run: |
+  #         mvn clean package -DskipTests
 
-      - name: Upload Source Code
-        uses: actions/upload-artifact@v4
-        with:
-          name: source-code
-          path: .
+  #     - name: Upload Source Code
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: source-code
+  #         path: .
 
 
-  bug-analysis:
-    needs: build
-    runs-on: ubuntu-latest
-    container:
-      image: maven:3.9-eclipse-temurin-17
-      options: --user root
-    steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: source-code
-        path: .
+  # bug-analysis:
+    # # needs: build
+    # runs-on: ubuntu-latest
+    # container:
+    #   image: maven:3.9-eclipse-temurin-17
+    #   options: --user root
+    # steps:
+    #   - name: checkout
+    #     uses: actions/checkout@v4
+    #     with:
+    #      path: .
 
-    - name: Bug Analysis
-      run: mvn com.github.spotbugs:spotbugs-maven-plugin:4.7.3.0:spotbugs
+    # # - name: Download artifacts
+    # #   uses: actions/download-artifact@v4
+    # #   with:
+    # #     name: source-code
+    # #     path: .
+
+    # - name: Bug Analysis
+    #   run: mvn com.github.spotbugs:spotbugs-maven-plugin:4.7.3.0:spotbugs
   
-    - name: check files
-      run: | 
-       ls -l target/
+    # - name: check files
+    #   run: | 
+    #    ls -l target/
 
-    - name: Upload Bug report
-      uses: actions/upload-artifact@v4
-      with:
-        name: bug-report
-        path: target/*.xml
+    # - name: Upload Bug report
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: bug-report
+    #     path: target/*.xml
 
   sast:
     runs-on: ubuntu-latest
-    needs: [build, bug-analysis]
+    # needs: [build, bug-analysis]
     container:
       image: sonarsource/sonar-scanner-cli:latest
       options: --user root
     steps:
-    - name: Download source code
-      uses: actions/download-artifact@v4
+
+    - name: checkout
+      uses: actions/checkout@v4
       with:
-        name: source-code
         path: .
+
+    # - name: Download source code
+    #   uses: actions/download-artifact@v4
+    #   with:
+    #     name: source-code
+    #     path: .
     
     - name: Download Bug report
       uses: actions/download-artifact@v4
@@ -102,14 +113,17 @@ jobs:
           -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
           -Dsonar.projectName=${{ github.event.repository.name }} \
           -Dsonar.projectKey=${{ github.event.repository.name }} \
-          -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml \
-          -Dsonar.dependencyCheck.reportPath=dependency-check-report.xml \
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+          -Dsonar.dependencyCheck.htmlReportPath=target/dependency-check-report.html \
+          -Dsonar.dependencyCheck.jsonReportPath=target/dependency-check-report.json \
           -Dsonar.sources=src/main/java \
           -Dsonar.tests=src/test/java \
           -Dsonar.java.binaries=target/classes \
           -Dsonar.findbugs.reportpaths=target/spotbugsXml.xml \
           -Dsonar.qualitygate.wait=true
-        
+
+
+
   # docker-build-push:
   #   runs-on: ubuntu-latest
   #   env: 

@@ -1,0 +1,4 @@
+/usr/src/app/src/test/java/com/opstree/microservice/salary/model/MessageTests.java
+/usr/src/app/src/test/java/com/opstree/microservice/salary/config/OpenAPIConfigTests.java
+/usr/src/app/src/test/java/com/opstree/microservice/salary/SalaryApplicationTests.java
+/usr/src/app/src/test/java/com/opstree/microservice/salary/model/EmployeeTests.java
