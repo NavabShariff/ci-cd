@@ -107,6 +107,7 @@ jobs:
           -Dsonar.sources=src/main/java \
           -Dsonar.tests=src/test/java \
           -Dsonar.java.binaries=target/classes \
+          -Dsonar.findbugs.reportpaths=target/spotbugsXml.xml \
           -Dsonar.qualitygate.wait=true
         
   # docker-build-push:
