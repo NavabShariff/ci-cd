@@ -96,11 +96,11 @@ jobs:
     #     name: source-code
     #     path: .
     
-    - name: Download Bug report
-      uses: actions/download-artifact@v4
-      with:
-        name: bug-report
-        path: target
+    # - name: Download Bug report
+    #   uses: actions/download-artifact@v4
+    #   with:
+    #     name: bug-report
+    #     path: target
 
     - name: Check files
       run: |
