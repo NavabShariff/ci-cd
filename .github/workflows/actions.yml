@@ -273,7 +273,7 @@ jobs:
             -v $(pwd):/zap/wrk \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py -t http://localhost:8080/salary-documentation \
-            -c /zap/wrk/my-config.yaml -r zap-report.html || true
+            -c /zap/wrk/zap-config.yaml -r zap-report.html || true
 
 
       - name: check report files
