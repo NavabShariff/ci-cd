@@ -70,6 +70,7 @@ jobs:
         path: target/*.xml
 
   dependency-check:
+    needs: build
     runs-on: ubuntu-latest
     steps:
     - name: Download artifacts
