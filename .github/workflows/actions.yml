@@ -114,8 +114,7 @@ jobs:
           -Dsonar.projectName=${{ github.event.repository.name }} \
           -Dsonar.projectKey=${{ github.event.repository.name }} \
           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-          -Dsonar.dependencyCheck.htmlReportPath=target/dependency-check-report.html \
-          -Dsonar.dependencyCheck.jsonReportPath=target/dependency-check-report.json \
+          -Dsonar.dependencyCheck.htmlReportPath=dependency-check-report.html \
           -Dsonar.sources=src/main/java \
           -Dsonar.tests=src/test/java \
           -Dsonar.java.binaries=target/classes \
