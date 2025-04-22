@@ -264,7 +264,7 @@ jobs:
 
       - name: Start application
         run: |
-          docker-compose up -d
+          docker compose -f docker-compose.yaml up -d
 
       - name: Run OWASP ZAP Scan
         run: |
