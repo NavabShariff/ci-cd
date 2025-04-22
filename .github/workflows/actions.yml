@@ -269,11 +269,12 @@ jobs:
       - name: Run OWASP ZAP Scan
         run: |
           sleep 30
-          chown 1000:1000 $(pwd)
           docker run --rm --network host \
             -v $(pwd):/zap/wrk \
+            --user $(id -u):$(id -g) \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py -t http://localhost:8080/salary-documentation -r zap-report.html || true
+
 
       - name: check report files
         run: | 
