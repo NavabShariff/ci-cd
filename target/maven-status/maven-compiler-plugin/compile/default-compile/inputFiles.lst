@@ -1,7 +1,0 @@
-/usr/src/app/src/main/java/com/opstree/microservice/salary/config/OpenAPIConfig.java
-/usr/src/app/src/main/java/com/opstree/microservice/salary/model/Employee.java
-/usr/src/app/src/main/java/com/opstree/microservice/salary/repository/EmployeeRepository.java
-/usr/src/app/src/main/java/com/opstree/microservice/salary/service/SpringDataSalaryService.java
-/usr/src/app/src/main/java/com/opstree/microservice/salary/contollers/SpringDataController.java
-/usr/src/app/src/main/java/com/opstree/microservice/salary/SalaryApplication.java
-/usr/src/app/src/main/java/com/opstree/microservice/salary/model/Message.java

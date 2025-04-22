@@ -146,6 +146,7 @@
 				<version>4.7.3.0</version>
 				<configuration>
 					<effort>Max</effort>
+					<failOnError>true</failOnError>
 					<threshold>Low</threshold>
 					<xmlOutput>true</xmlOutput>
 					<outputDirectory>${project.build.directory}</outputDirectory>

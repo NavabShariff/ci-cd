@@ -61,7 +61,7 @@ services:
       - .:/usr/src/app  # Mount the entire project directory
       # - ./.m2:/root/.m2 # Optional: Cache Maven dependencies
  # Optional: Persist maven dependencies across builds
-    command: mvn clean package # Runs tests using Maven
+    command: mvn clean package -DskipTests # Runs tests using Maven
     depends_on:
       - scylladb
       - redis

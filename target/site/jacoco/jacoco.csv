@@ -1,6 +1,0 @@
-GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-salary,com.opstree.microservice.salary,SalaryApplication,5,37,0,0,2,13,1,3,1,3
-salary,com.opstree.microservice.salary.model,Message,0,6,0,0,0,3,0,1,0,1
-salary,com.opstree.microservice.salary.model,Employee.EmployeeBuilder,54,0,0,0,1,0,8,0,8,0
-salary,com.opstree.microservice.salary.model,Employee,219,38,46,0,2,7,29,11,6,11
-salary,com.opstree.microservice.salary.swagger,OpenAPIConfig,0,59,0,0,0,16,0,2,0,2
