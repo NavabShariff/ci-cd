@@ -280,9 +280,11 @@ jobs:
       - name: Run OWASP ZAP Scan
         run: |
           sleep 30
-          docker run -u root --network host \ 
-          -v $(pwd):/zap/wrk ghcr.io/zaproxy/zaproxy:stable \ 
-          zap-baseline.py -t http://localhost:8080/salary-documentation -r report.html
+          docker run -u root --network host \
+            -v $(pwd):/zap/wrk \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py -t http://localhost:8080/salary-documentation -r report.html
+
 
 
 
