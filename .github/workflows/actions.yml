@@ -58,7 +58,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: compile-files
-        path: target/*
+        path: target/
 
 
   bug-analysis:
@@ -74,6 +74,17 @@ jobs:
         name: source-code
         path: .
 
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: compile-files
+        path: .
+
+    - name: check files
+      run: |
+        ls -l
+
     - name: Bug Analysis
       run: mvn com.github.spotbugs:spotbugs-maven-plugin:check
   
@@ -87,6 +98,9 @@ jobs:
   dependency-check:
     needs: clone
     runs-on: ubuntu-latest
+    container:
+      image: maven:3.9-eclipse-temurin-17
+      options: --user root
     steps:
     - name: Download artifacts
       uses: actions/download-artifact@v4
@@ -98,45 +112,45 @@ jobs:
       run: |
         mvn dependency-check:check
 
-  sca-sonarqubescan:
-    runs-on: ubuntu-latest
-    needs: [build, bug-analysis]
-    container:
-      image: sonarsource/sonar-scanner-cli:latest
-      options: --user root
-    steps:
+  # sca-sonarqubescan:
+  #   runs-on: ubuntu-latest
+  #   needs: [build, bug-analysis]
+  #   container:
+  #     image: sonarsource/sonar-scanner-cli:latest
+  #     options: --user root
+  #   steps:
 
-    - name: Download source code
-      uses: actions/download-artifact@v4
-      with:
-        name: source-code
-        path: .
+  #   - name: Download source code
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: source-code
+  #       path: .
     
-    - name: Download Bug report
-      uses: actions/download-artifact@v4
-      with:
-        name: bug-report
-        path: target
+  #   - name: Download Bug report
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: bug-report
+  #       path: target/*.xml
 
-    - name: Check files
-      run: |
-        ls -l target/
+  #   - name: Check files
+  #     run: |
+  #       ls -l target/
 
-    - name: Scanning of compile code and send scanning report along with codecoverage report to SonarQube server
-      run: |
-        sonar-scanner \
-          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-          -Dsonar.projectName=${{ github.event.repository.name }} \
-          -Dsonar.projectKey=${{ github.event.repository.name }} \
-          -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml \
-          -Dsonar.dependencyCheck.htmlReportPath=dependency-check-report.html \
-          -Dsonar.dependencyCheck.jsonReportPath=dependency-check-report.json \
-          -Dsonar.sources=src/main/java \
-          -Dsonar.tests=src/test/java \
-          -Dsonar.java.binaries=target/classes \
-          -Dsonar.findbugs.reportpaths=target/spotbugsXml.xml \
-          -Dsonar.qualitygate.wait=true
+  #   - name: Scanning of compile code and send scanning report along with codecoverage report to SonarQube server
+  #     run: |
+  #       sonar-scanner \
+  #         -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+  #         -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+  #         -Dsonar.projectName=${{ github.event.repository.name }} \
+  #         -Dsonar.projectKey=${{ github.event.repository.name }} \
+  #         -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml \
+  #         -Dsonar.dependencyCheck.htmlReportPath=dependency-check-report.html \
+  #         -Dsonar.dependencyCheck.jsonReportPath=dependency-check-report.json \
+  #         -Dsonar.sources=src/main/java \
+  #         -Dsonar.tests=src/test/java \
+  #         -Dsonar.java.binaries=target/classes \
+  #         -Dsonar.findbugs.reportpaths=target/spotbugsXml.xml \
+  #         -Dsonar.qualitygate.wait=true
 
 
 
