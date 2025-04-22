@@ -36,136 +36,136 @@ jobs:
         name: source-code
         path: .
 
-  # build:
-  #   needs: clone
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: maven:3.9-eclipse-temurin-17
-  #     options: --user root
-  #   steps:
+  build:
+    needs: clone
+    runs-on: ubuntu-latest
+    container:
+      image: maven:3.9-eclipse-temurin-17
+      options: --user root
+    steps:
  
-  #   - name: Download artifacts
-  #     uses: actions/download-artifact@v4
-  #     with:
-  #       name: source-code
-  #       path: .
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: source-code
+        path: .
 
-  #   - name: Build the Source Code
-  #     run: |
-  #       mvn clean package -DskipTests
+    - name: Build the Source Code
+      run: |
+        mvn clean package -DskipTests
 
-  #   - name: Upload Compile files target folder
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: compile-files
-  #       path: target
+    - name: Upload Compile files target folder
+      uses: actions/upload-artifact@v4
+      with:
+        name: compile-files
+        path: target
 
 
-  # bug-analysis:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: maven:3.9-eclipse-temurin-17
-  #     options: --user root
-  #   steps:
-  #   - name: Download artifacts
-  #     uses: actions/download-artifact@v4
-  #     with:
-  #       name: source-code
-  #       path: .
+  bug-analysis:
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: maven:3.9-eclipse-temurin-17
+      options: --user root
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: source-code
+        path: .
 
-  #   - name: Download artifacts
-  #     uses: actions/download-artifact@v4
-  #     with:
-  #       name: compile-files
-  #       path: target
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: compile-files
+        path: target
 
-  #   - name: check files
-  #     run: |
-  #       ls -l
+    - name: check files
+      run: |
+        ls -l
 
-  #   - name: Bug Analysis
-  #     run: mvn com.github.spotbugs:spotbugs-maven-plugin:check
+    - name: Bug Analysis
+      run: mvn com.github.spotbugs:spotbugs-maven-plugin:check
   
 
-  #   - name: Upload Bug report
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: bug-report
-  #       path: target/*.xml
+    - name: Upload Bug report
+      uses: actions/upload-artifact@v4
+      with:
+        name: bug-report
+        path: target/*.xml
 
-  # dependency-check:
-  #   needs: clone
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: maven:3.9-eclipse-temurin-17
-  #     options: --user root
-  #   steps:
-  #   - name: Download artifacts
-  #     uses: actions/download-artifact@v4
-  #     with:
-  #       name: source-code
-  #       path: .
+  dependency-check:
+    needs: clone
+    runs-on: ubuntu-latest
+    container:
+      image: maven:3.9-eclipse-temurin-17
+      options: --user root
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: source-code
+        path: .
     
-  #   - name: Check dependency check
-  #     run: |
-  #       mvn dependency-check:check
+    - name: Check dependency check
+      run: |
+        mvn dependency-check:check
 
-  #   - name: check file
-  #     run: |
-  #       ls -l
+    - name: check file
+      run: |
+        ls -l
 
-  #   - name: Upload Bug report
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: dependency-check-report
-  #       path: dependency-check-report.html
+    - name: Upload Bug report
+      uses: actions/upload-artifact@v4
+      with:
+        name: dependency-check-report
+        path: dependency-check-report.html
 
-  # sca-sonar-alanysis:
-  #   name: static code analysis
-  #   needs: [build, bug-analysis, dependency-check]
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: maven:3.9-eclipse-temurin-17
-  #     options: --user root
-  #   steps:
-  #   - name: Download artifacts
-  #     uses: actions/download-artifact@v4
-  #     with:
-  #       name: source-code
-  #       path: .
-
-
-  #   - name: Download artifacts
-  #     uses: actions/download-artifact@v4
-  #     with:
-  #       name: compile-files
-  #       path: target
-
-  #   - name: Download artifacts
-  #     uses: actions/download-artifact@v4
-  #     with:
-  #       name: bug-report
-  #       path: target
+  sca-sonar-alanysis:
+    name: static code analysis
+    needs: [build, bug-analysis, dependency-check]
+    runs-on: ubuntu-latest
+    container:
+      image: maven:3.9-eclipse-temurin-17
+      options: --user root
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: source-code
+        path: .
 
 
-  #   - name: Download artifacts
-  #     uses: actions/download-artifact@v4
-  #     with:
-  #       name: dependency-check-report
-  #       path: .
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: compile-files
+        path: target
 
-  #   - name: run sonar plugin
-  #     run: |
-  #      mvn sonar:sonar \
-  #       -Dsonar.projectName=${{ github.event.repository.name }} \
-  #       -Dsonar.projectKey=${{ github.event.repository.name }} \
-  #       -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-  #       -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-  #       -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml \
-  #       -Dsonar.dependencyCheck.htmlReportPath=dependency-check-report.html  \
-  #       -Dsonar.findbugs.reportpaths=target/spotbugsXml.xml \
-  #       -Dsonar.qualitygate.wait=true
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: bug-report
+        path: target
+
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dependency-check-report
+        path: .
+
+    - name: run sonar plugin
+      run: |
+       mvn sonar:sonar \
+        -Dsonar.projectName=${{ github.event.repository.name }} \
+        -Dsonar.projectKey=${{ github.event.repository.name }} \
+        -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+        -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+        -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml \
+        -Dsonar.dependencyCheck.htmlReportPath=dependency-check-report.html  \
+        -Dsonar.findbugs.reportpaths=target/spotbugsXml.xml \
+        -Dsonar.qualitygate.wait=true
 
 
 
@@ -174,7 +174,7 @@ jobs:
     env: 
       ECR_REPO: 'salary-api'
       AWS_REGION: 'ap-south-1'
-    needs: clone
+    needs: sca-sonar-alanysis
     outputs:
       image_tag: ${{ steps.vars.outputs.image_tag }}
       image-name: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}
@@ -184,9 +184,6 @@ jobs:
         with:
           name: source-code
           path: .
-
-      # - name: Remove target folder after download
-      #   run: rm -rf ./target
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -231,36 +228,36 @@ jobs:
           name: prebuilt-salary-api-image
           path: salary-api-image.tar.gz
 
-  # docker-image-scan:
-  #   runs-on: ubuntu-latest
-  #   env: 
-  #     ECR_REPO: 'salary-api'
-  #     AWS_REGION: 'ap-south-1'
-  #   needs: docker-build-push
-  #   steps:
-  #     - name: Download ecr image scan file
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: ecr-scan-file
-  #         path: .
+  docker-image-scan:
+    runs-on: ubuntu-latest
+    env: 
+      ECR_REPO: 'salary-api'
+      AWS_REGION: 'ap-south-1'
+    needs: docker-build-push
+    steps:
+      - name: Download ecr image scan file
+        uses: actions/download-artifact@v4
+        with:
+          name: ecr-scan-file
+          path: .
 
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
-  #         role-session-name: GitHubActionSession
-  #         aws-region: ${{ env.AWS_REGION }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
+          role-session-name: GitHubActionSession
+          aws-region: ${{ env.AWS_REGION }}
 
-  #     - name: Install JQ
-  #       run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Install JQ
+        run: sudo apt-get update && sudo apt-get install -y jq
 
-  #     - name: Run ECR Vulnerability Scan Check
-  #       run: |
-  #         chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image_tag }} ${{ env.AWS_REGION }}
+      - name: Run ECR Vulnerability Scan Check
+        run: |
+          chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image_tag }} ${{ env.AWS_REGION }}
 
 
   dast:
-    needs: [docker-build-push]
+    needs: [docker-build-push, docker-image-scan]
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: ${{ needs.docker-build-push.outputs.image-name }}:${{ needs.docker-build-push.outputs.image_tag }}
@@ -364,18 +361,18 @@ jobs:
 #   #       git push
 
 
-#   # notify:
-#   #   uses: NavabShariff/shared-library/.github/workflows/send-slack-alert.yml@main
-#   #   needs: [build, sast, docker-build-push, docker-image-scan, trigger-CD]  # Just update here if new jobs added
-#   #   if: always()
-#   #   with:
-#   #     status: ${{ contains(join(needs.*.result, ' '), 'failure') && 'failure' || 'success' }}
-#   #     commit_author_name: ${{ github.event.pusher.name }}
-#   #     commit_message: ${{ github.event.head_commit.message }}
-#   #     commit_id: ${{ github.sha }}
-#   #     run_id: ${{ github.run_id }}
-#   #   secrets:
-#   #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  # notify:
+  #   uses: NavabShariff/shared-library/.github/workflows/send-slack-alert.yml@main
+  #   needs: [build, sast, docker-build-push, docker-image-scan, trigger-CD]  # Just update here if new jobs added
+  #   if: always()
+  #   with:
+  #     status: ${{ contains(join(needs.*.result, ' '), 'failure') && 'failure' || 'success' }}
+  #     commit_author_name: ${{ github.event.pusher.name }}
+  #     commit_message: ${{ github.event.head_commit.message }}
+  #     commit_id: ${{ github.sha }}
+  #     run_id: ${{ github.run_id }}
+  #   secrets:
+  #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 
 
