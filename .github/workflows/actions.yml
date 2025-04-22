@@ -281,9 +281,20 @@ jobs:
 
       - name: Run ZAP scan
         run: |
-          # Sleep for 30 seconds to ensure the app is fully up and running
           sleep 30
-          docker run --network host -u root -v $(pwd):/zap/wrk ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://localhost:8080 -J report.json -z "-config urls.file=/zap/wrk/urls.txt" 2> /dev/null; (($? == 2)) && echo 'Done' >&2
+          set +e  # disable "exit on error" for this block
+          docker run --network host -u root -v $(pwd):/zap/wrk ghcr.io/zaproxy/zaproxy:stable \
+            zap-full-scan.py -t http://localhost:8080 -r report.html -z "-config urls.file=/zap/wrk/urls.txt"
+          
+          exit_code=$?
+          echo "ZAP exited with code: $exit_code"
+
+          if [[ $exit_code -eq 2 ]]; then
+            echo "ZAP found warnings but no failures — treating as success."
+            exit 0
+          fi
+
+          exit $exit_code  # Let GitHub Action fail only for real errors (1 or 3)
 
 
 
