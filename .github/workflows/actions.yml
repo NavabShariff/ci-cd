@@ -255,46 +255,47 @@ jobs:
 #           chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image_tag }} ${{ env.AWS_REGION }}
 
 
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses:  actions/checkout@v4
-
-    - name: test
-      run: |
-        ls -l $(pwd)
-  # dast:
+  # test:
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - name: checkout
-  #       uses: actions/checkout@v4
-  #       with:
-  #         path: .
+  #   - name: checkout
+  #     uses:  actions/checkout@v4
 
-  #     - name: Start application
-  #       run: |
-  #         docker compose -f docker-compose.yaml up -d
+  #   - name: test
+  #     run: |
+  #       ls -l $(pwd)
 
-  #     - name: Run OWASP ZAP Scan
-  #       run: |
-  #         sleep 30
-  #         docker run --rm --network host \
-  #           -v $(pwd):/zap/wrk \
-  #           ghcr.io/zaproxy/zaproxy:stable \
-  #           zap-baseline.py -t http://localhost:8080/salary-documentation \
-  #           -c /zap/wrk/zap-config.yaml -r zap-report.html || true
+  dast:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          path: .
+
+      - name: Start application
+        run: |
+          docker compose -f docker-compose.yaml up -d
+
+      - name: Run OWASP ZAP Scan
+        run: |
+          sleep 30
+          docker run --rm --network host \
+            -v $(pwd):/zap/wrk \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py -t http://localhost:8080/salary-documentation \
+            -c /zap/wrk/zap-config.yaml -r /zap/wrk/zap-report.html || true
 
 
-  #     - name: check report files
-  #       run: | 
-  #         ls -l
+      - name: check report files
+        run: | 
+          ls -l
 
-  #     - name: Upload ZAP Report
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: zap-report
-  #         path: zap-report.html
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report
+          path: zap-report.html
 
 
 #   # trigger-CD:
