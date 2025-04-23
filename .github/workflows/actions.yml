@@ -17,35 +17,28 @@ on:
 # #       - main
 
 
-permissions:
-  id-token: write
-  contents: read  
-  packages: write
+# permissions:
+#   id-token: write
+#   contents: read  
+#   packages: write
 
-jobs:
+# jobs:
 
-  # clone:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: checkout code
-  #     uses: actions/checkout@v4
+#   credential-scan:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v3 
 
-  #   - name: Upload Source Code
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: source-code
-  #       path: .
+#       - uses: gitleaks/gitleaks-action@v2
+#         with:
+#           args: --verbose --redact --exit-code 1
 
-  credential-scan:
-    # needs: clone
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3 
-
-      - uses: gitleaks/gitleaks-action@v2
-        with:
-          args: --verbose --redact --exit-code 1
+#       - name: Upload Source Code
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: source-code
+#           path: .
 
   # build:
   #   needs: clone
