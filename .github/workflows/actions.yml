@@ -37,7 +37,7 @@ jobs:
   #       path: .
 
   credential-scan:
-    needs: clone
+    # needs: clone
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
