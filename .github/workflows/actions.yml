@@ -40,7 +40,7 @@ jobs:
         
         exit_code=$?
 
-        if [[ $exit_code -ne 0]]; then
+        if [[ $exit_code -ne 0 ]]; then
           echo "commit is missing Signed-off-by line"
           exit 1
         fi
