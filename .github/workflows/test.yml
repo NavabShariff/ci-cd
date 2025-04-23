@@ -1,0 +1,14 @@
+name: test
+
+on:
+ push:
+  branches: ['main']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: test branch name
+      run: | 
+        BRANCH_NAME="${{ github.ref_name }}"
+        echo $BRANCH_NAME

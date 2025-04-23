@@ -94,9 +94,6 @@ jobs:
         name: compile-files
         path: target
 
-    - name: check files
-      run: |
-        ls -l
 
     - name: Bug Analysis
       run: mvn com.github.spotbugs:spotbugs-maven-plugin:check
@@ -107,6 +104,7 @@ jobs:
       with:
         name: bug-report
         path: target/*.xml
+
 
   dependency-check:
     needs: pre_checks
@@ -125,10 +123,6 @@ jobs:
       run: |
         mvn dependency-check:check
 
-    - name: check file
-      run: |
-        ls -l
-
     - name: Upload Bug report
       uses: actions/upload-artifact@v4
       with:
@@ -136,7 +130,6 @@ jobs:
         path: dependency-check-report.html
 
   sca-sonar-analysis:
-    name: static code analysis
     needs: [build, bug-analysis, dependency-check]
     runs-on: ubuntu-latest
     container:
@@ -149,7 +142,6 @@ jobs:
         name: source-code
         path: .
 
-
     - name: Download artifacts
       uses: actions/download-artifact@v4
       with:
@@ -161,7 +153,6 @@ jobs:
       with:
         name: bug-report
         path: target
-
 
     - name: Download artifacts
       uses: actions/download-artifact@v4
@@ -296,7 +287,7 @@ jobs:
       - name: Run ZAP scan
         run: |
           sleep 30
-          set +e  # disable "exit on error" for this block
+          set +e  
           docker run --network host -u root -v $(pwd):/zap/wrk ghcr.io/zaproxy/zaproxy:stable \
             zap-full-scan.py -t http://localhost:8080 -J report.json -z "-config urls.file=/zap/wrk/urls.txt"
           
@@ -308,13 +299,13 @@ jobs:
             exit 0
           fi
 
-          exit $exit_code  # Let GitHub Action fail only for real errors (1 or 3)
+          exit $exit_code  
 
       - name: Validate ZAP Report for High Risk Issues
         run: |
           if grep -q 'High' report.json; then
             echo "High risk issues found in report!"
-            exit 1  # Fail the job if 'High' found
+            exit 1
           else
             echo "No High risk issues found in report."
           fi
@@ -401,4 +392,3 @@ jobs:
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$id"
           done
-          
