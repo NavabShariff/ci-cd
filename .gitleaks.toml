@@ -1,0 +1,6 @@
+[[rules]]
+id = "sonar-token"
+description = "Sonar Token in pom.xml"
+regex = '''<sonar\.token>\s*[a-zA-Z0-9_\-]{20,}\s*</sonar\.token>'''
+tags = ["secret", "token", "sonar"]
+
