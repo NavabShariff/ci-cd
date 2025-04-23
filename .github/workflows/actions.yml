@@ -362,10 +362,10 @@ jobs:
         git add .
         git commit -m "Deploy: Update image tag to $IMAGE_TAG for ${{ github.event.repository.name }} on branch ${GITHUB_REF##*/}"
         git push
-
-  notify:
+  
+  slack-notification:
     uses: NavabShariff/shared-library/.github/workflows/send-slack-alert.yml@main
-    needs: [build, bug-analysis, dependency-check, sca-sonar-alanysis, docker-build-push, docker-image-scan, dast,trigger-CD]  # Just update here if new jobs added
+    needs: [build, bug-analysis, dependency-check, sca-sonar-analysis, docker-build-push, docker-image-scan, dast,trigger-CD]
     if: always()
     with:
       status: ${{ contains(join(needs.*.result, ' '), 'failure') && 'failure' || 'success' }}
@@ -378,7 +378,7 @@ jobs:
 
   cleanup:
     runs-on: ubuntu-latest
-    needs: [docker-image-scan, dast, notify]
+    needs: [docker-image-scan, dast, slack-notification]
     if: always()
     steps:
 
