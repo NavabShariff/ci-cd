@@ -43,20 +43,12 @@ jobs:
           exit 1
         fi
         
-    - name: check for commit sign-off
-      run: |
-        git log -1 --pretty=%B | grep -q "Signed-off-by:"
 
-        if [[ $? -eq 0]]; then
-          echo "commit is missing Signed-off-by line"
-          exit 1
-        fi
-
-    - name: Upload Source Code
-      uses: actions/upload-artifact@v4
-      with:
-        name: source-code
-        path: .
+    # - name: Upload Source Code
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: source-code
+    #     path: .
   # build:
   #   needs: clone
   #   runs-on: ubuntu-latest
