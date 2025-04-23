@@ -1,119 +1,119 @@
-name: dast checking
+# name: dast checking
 
-on:
-  push:
-    branches: ['main']
+# on:
+#   push:
+#     branches: ['main']
 
-permissions:
- id-token: write
+# permissions:
+#  id-token: write
 
-jobs:
+# jobs:
 
-  check-commit:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
+#   check-commit:
+#     runs-on: ubuntu-latest
+#     steps:
+#     - uses: actions/checkout@v4
 
-    - uses: commit-check/commit-check-action@v1
-      with:
-        commit-signoff: true
-        message: false
-
-
-  docker-build-push:
-    runs-on: ubuntu-latest
-    env: 
-      ECR_REPO: 'salary-api'
-      AWS_REGION: 'ap-south-1'
-    needs: check-commit
-    outputs:
-      image_tag: ${{ steps.vars.outputs.image_tag }}
-      image-name: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
-          role-session-name: GitHubActionSession
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+#     - uses: commit-check/commit-check-action@v1
+#       with:
+#         commit-signoff: true
+#         message: false
 
 
-      - name: Set Image Tags
-        id: vars
-        run: |
-          IMAGE_TAG=${{ github.ref_name }}-$(echo $GITHUB_SHA | head -c 8)
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+#   docker-build-push:
+#     runs-on: ubuntu-latest
+#     env: 
+#       ECR_REPO: 'salary-api'
+#       AWS_REGION: 'ap-south-1'
+#     needs: check-commit
+#     outputs:
+#       image_tag: ${{ steps.vars.outputs.image_tag }}
+#       image-name: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}
+#     steps:
+#       - name: checkout
+#         uses: actions/checkout@v4
+
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
+#           role-session-name: GitHubActionSession
+#           aws-region: ${{ env.AWS_REGION }}
+
+#       - name: Log in to Amazon ECR
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v2
 
 
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: false
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
+#       - name: Set Image Tags
+#         id: vars
+#         run: |
+#           IMAGE_TAG=${{ github.ref_name }}-$(echo $GITHUB_SHA | head -c 8)
+#           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+#           echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: check docker images
-        run: | 
-          docker images
 
-      # - name: Upload ecr image scan file
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: ecr-scan-file
-      #     path: ecr-image-scan.sh
+#       - name: Build and Push Docker Image
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: .
+#           push: false
+#           tags: |
+#             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
 
-      # - name: Save Docker image to file
-      #   run: docker save ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }} | gzip > salary-api-image.tar.gz
+#       - name: check docker images
+#         run: | 
+#           docker images
 
-      # - name: Upload image as artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: prebuilt-salary-api-image
-      #     path: salary-api-image.tar.gz
+#       # - name: Upload ecr image scan file
+#       #   uses: actions/upload-artifact@v4
+#       #   with:
+#       #     name: ecr-scan-file
+#       #     path: ecr-image-scan.sh
 
-      # - name: Start application
-      #   run: |
-      #     echo "IMAGE_NAME=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}" > .env
-      #     docker compose up -d
+#       # - name: Save Docker image to file
+#       #   run: docker save ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }} | gzip > salary-api-image.tar.gz
 
-      # - name: Run ZAP Full Scan
-      #   uses: zaproxy/action-full-scan@v0.12.0
-      #   with:
-      #     token: ${{ secrets.GH_TOKEN }}
-      #     target: 'http://localhost:8080'
-      #     docker_name: 'ghcr.io/zaproxy/zaproxy:stable'
-      #     cmd_options: '-J report_json.json -z "-config urls.file=/zap/wrk/urls.txt"'
-      #     fail_action: false
+#       # - name: Upload image as artifact
+#       #   uses: actions/upload-artifact@v4
+#       #   with:
+#       #     name: prebuilt-salary-api-image
+#       #     path: salary-api-image.tar.gz
 
-      # - name: check files
-      #   run: |
-      #     ls -lh
-  # dast:
-  #   needs: [docker-build-push]
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     IMAGE_NAME: ${{ needs.docker-build-push.outputs.image-name }}:${{ needs.docker-build-push.outputs.image_tag }}
-  #   steps:
-  #     - name: checkout
-  #       uses: actions/checkout@v4
-  #       with:
-  #         path: .
+#       # - name: Start application
+#       #   run: |
+#       #     echo "IMAGE_NAME=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}" > .env
+#       #     docker compose up -d
 
-  #     - name: Download prebuilt image artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: prebuilt-salary-api-image
-  #         path: .
+#       # - name: Run ZAP Full Scan
+#       #   uses: zaproxy/action-full-scan@v0.12.0
+#       #   with:
+#       #     token: ${{ secrets.GH_TOKEN }}
+#       #     target: 'http://localhost:8080'
+#       #     docker_name: 'ghcr.io/zaproxy/zaproxy:stable'
+#       #     cmd_options: '-J report_json.json -z "-config urls.file=/zap/wrk/urls.txt"'
+#       #     fail_action: false
 
-  #     - name: Load Docker image
-  #       run: gunzip -c salary-api-image.tar.gz | docker load
+#       # - name: check files
+#       #   run: |
+#       #     ls -lh
+#   # dast:
+#   #   needs: [docker-build-push]
+#   #   runs-on: ubuntu-latest
+#   #   env:
+#   #     IMAGE_NAME: ${{ needs.docker-build-push.outputs.image-name }}:${{ needs.docker-build-push.outputs.image_tag }}
+#   #   steps:
+#   #     - name: checkout
+#   #       uses: actions/checkout@v4
+#   #       with:
+#   #         path: .
+
+#   #     - name: Download prebuilt image artifact
+#   #       uses: actions/download-artifact@v4
+#   #       with:
+#   #         name: prebuilt-salary-api-image
+#   #         path: .
+
+#   #     - name: Load Docker image
+#   #       run: gunzip -c salary-api-image.tar.gz | docker load
         
