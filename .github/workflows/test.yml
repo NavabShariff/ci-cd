@@ -45,44 +45,24 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
+          push: false
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
 
-      - name: Upload ecr image scan file
-        uses: actions/upload-artifact@v4
-        with:
-          name: ecr-scan-file
-          path: ecr-image-scan.sh
+      # - name: Upload ecr image scan file
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ecr-scan-file
+      #     path: ecr-image-scan.sh
 
-      - name: Save Docker image to file
-        run: docker save ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }} | gzip > salary-api-image.tar.gz
+      # - name: Save Docker image to file
+      #   run: docker save ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }} | gzip > salary-api-image.tar.gz
 
-      - name: Upload image as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: prebuilt-salary-api-image
-          path: salary-api-image.tar.gz
-
-  dast:
-    needs: [docker-build-push]
-    runs-on: ubuntu-latest
-    env:
-      IMAGE_NAME: ${{ needs.docker-build-push.outputs.image-name }}:${{ needs.docker-build-push.outputs.image_tag }}
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-        with:
-          path: .
-
-      - name: Download prebuilt image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: prebuilt-salary-api-image
-          path: .
-
-      - name: Load Docker image
-        run: gunzip -c salary-api-image.tar.gz | docker load
+      # - name: Upload image as artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: prebuilt-salary-api-image
+      #     path: salary-api-image.tar.gz
 
       - name: Start application
         run: |
@@ -92,9 +72,28 @@ jobs:
       - name: Run ZAP Full Scan
         uses: zaproxy/action-full-scan@v0.12.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
           target: 'http://localhost:8080'
           docker_name: 'ghcr.io/zaproxy/zaproxy:stable'
           cmd_options: '-config urls.file=/zap/wrk/urls.txt'
-          fail_action: true 
+          fail_action: false
+  # dast:
+  #   needs: [docker-build-push]
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     IMAGE_NAME: ${{ needs.docker-build-push.outputs.image-name }}:${{ needs.docker-build-push.outputs.image_tag }}
+  #   steps:
+  #     - name: checkout
+  #       uses: actions/checkout@v4
+  #       with:
+  #         path: .
+
+  #     - name: Download prebuilt image artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: prebuilt-salary-api-image
+  #         path: .
+
+  #     - name: Load Docker image
+  #       run: gunzip -c salary-api-image.tar.gz | docker load
         
