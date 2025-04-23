@@ -29,6 +29,7 @@ echo "==============================="
 
 if [[ "$CRITICAL" -gt 5 ]]; then
   echo "Image has $CRITICAL CRITICAL vulnerabilities! Failing pipeline."
+  aws ecr batch-delete-image --repository-name "$ECR_REPO" --region $REGION --image-id imageTag=$IMAGE_TAG
   exit 1
 fi
 
