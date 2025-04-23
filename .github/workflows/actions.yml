@@ -1,390 +1,390 @@
-name: salary-api-build-pipeline
+# name: salary-api-build-pipeline
 
-on: 
-  push: 
-    branches: ['main']
-
-
-# on:
-#   push:
-#     branches:
-#       - dev
-#       - 'feature/*'
-#       - 'release/*'
-#       - main
-#   pull_request:
-#     branches:
-#       - main
+# on: 
+#   push: 
+#     branches: ['main']
 
 
-permissions:
-  id-token: write
-  contents: read  
-  packages: write
+# # on:
+# #   push:
+# #     branches:
+# #       - dev
+# #       - 'feature/*'
+# #       - 'release/*'
+# #       - main
+# #   pull_request:
+# #     branches:
+# #       - main
 
-jobs:
 
-  pre_checks:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3 
+# permissions:
+#   id-token: write
+#   contents: read  
+#   packages: write
 
-    - uses: gitleaks/gitleaks-action@v2
-      with:
-        fail: true
-        redact: true
-        verbose: true
+# jobs:
 
-    - name: check for commit sign-off
-      run: |
-        git log -1 --pretty=%B | grep -q "Signed-off-by:"
+#   pre_checks:
+#     runs-on: ubuntu-latest
+#     steps:
+#     - name: Checkout repository
+#       uses: actions/checkout@v3 
+
+#     - uses: gitleaks/gitleaks-action@v2
+#       with:
+#         fail: true
+#         redact: true
+#         verbose: true
+
+#     - name: check for commit sign-off
+#       run: |
+#         git log -1 --pretty=%B | grep -q "Signed-off-by:"
         
-        exit_code=$?
+#         exit_code=$?
 
-        if [[ $exit_code -ne 0 ]]; then
-          echo "commit is missing Signed-off-by line"
-          exit 1
-        fi
+#         if [[ $exit_code -ne 0 ]]; then
+#           echo "commit is missing Signed-off-by line"
+#           exit 1
+#         fi
         
-    - name: Upload Source Code
-      uses: actions/upload-artifact@v4
-      with:
-        name: source-code
-        path: .
+#     - name: Upload Source Code
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: source-code
+#         path: .
 
-  build:
-    needs: pre_checks
-    runs-on: ubuntu-latest
-    container:
-      image: maven:3.9-eclipse-temurin-17
-      options: --user root
-    steps:
+#   build:
+#     needs: pre_checks
+#     runs-on: ubuntu-latest
+#     container:
+#       image: maven:3.9-eclipse-temurin-17
+#       options: --user root
+#     steps:
  
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: source-code
-        path: .
+#     - name: Download artifacts
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: source-code
+#         path: .
 
-    - name: Build the Source Code
-      run: |
-        mvn clean package -DskipTests
+#     - name: Build the Source Code
+#       run: |
+#         mvn clean package -DskipTests
 
-    - name: Upload Compile files target folder
-      uses: actions/upload-artifact@v4
-      with:
-        name: compile-files
-        path: target
+#     - name: Upload Compile files target folder
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: compile-files
+#         path: target
 
-  bug-analysis:
-    needs: build
-    runs-on: ubuntu-latest
-    container:
-      image: maven:3.9-eclipse-temurin-17
-      options: --user root
-    steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: source-code
-        path: .
+#   bug-analysis:
+#     needs: build
+#     runs-on: ubuntu-latest
+#     container:
+#       image: maven:3.9-eclipse-temurin-17
+#       options: --user root
+#     steps:
+#     - name: Download artifacts
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: source-code
+#         path: .
 
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: compile-files
-        path: target
+#     - name: Download artifacts
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: compile-files
+#         path: target
 
 
-    - name: Bug Analysis
-      run: mvn com.github.spotbugs:spotbugs-maven-plugin:check
+#     - name: Bug Analysis
+#       run: mvn com.github.spotbugs:spotbugs-maven-plugin:check
   
 
-    - name: Upload Bug report
-      uses: actions/upload-artifact@v4
-      with:
-        name: bug-report
-        path: target/*.xml
+#     - name: Upload Bug report
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: bug-report
+#         path: target/*.xml
 
 
-  dependency-check:
-    needs: pre_checks
-    runs-on: ubuntu-latest
-    container:
-      image: maven:3.9-eclipse-temurin-17
-      options: --user root
-    steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: source-code
-        path: .
+#   dependency-check:
+#     needs: pre_checks
+#     runs-on: ubuntu-latest
+#     container:
+#       image: maven:3.9-eclipse-temurin-17
+#       options: --user root
+#     steps:
+#     - name: Download artifacts
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: source-code
+#         path: .
     
-    - name: Check dependency check
-      run: |
-        mvn dependency-check:check
+#     - name: Check dependency check
+#       run: |
+#         mvn dependency-check:check
 
-    - name: Upload Bug report
-      uses: actions/upload-artifact@v4
-      with:
-        name: dependency-check-report
-        path: dependency-check-report.html
+#     - name: Upload Bug report
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: dependency-check-report
+#         path: dependency-check-report.html
 
-  sca-sonar-analysis:
-    needs: [build, bug-analysis, dependency-check]
-    runs-on: ubuntu-latest
-    container:
-      image: maven:3.9-eclipse-temurin-17
-      options: --user root
-    steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: source-code
-        path: .
+#   sca-sonar-analysis:
+#     needs: [build, bug-analysis, dependency-check]
+#     runs-on: ubuntu-latest
+#     container:
+#       image: maven:3.9-eclipse-temurin-17
+#       options: --user root
+#     steps:
+#     - name: Download artifacts
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: source-code
+#         path: .
 
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: compile-files
-        path: target
+#     - name: Download artifacts
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: compile-files
+#         path: target
 
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: bug-report
-        path: target
+#     - name: Download artifacts
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: bug-report
+#         path: target
 
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: dependency-check-report
-        path: .
+#     - name: Download artifacts
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: dependency-check-report
+#         path: .
 
-    - name: run sonar plugin
-      run: |
-       mvn sonar:sonar \
-        -Dsonar.projectName=${{ github.event.repository.name }} \
-        -Dsonar.projectKey=${{ github.event.repository.name }} \
-        -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-        -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-        -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml \
-        -Dsonar.dependencyCheck.htmlReportPath=dependency-check-report.html  \
-        -Dsonar.findbugs.reportpaths=target/spotbugsXml.xml \
-        -Dsonar.qualitygate.wait=true
+#     - name: run sonar plugin
+#       run: |
+#        mvn sonar:sonar \
+#         -Dsonar.projectName=${{ github.event.repository.name }} \
+#         -Dsonar.projectKey=${{ github.event.repository.name }} \
+#         -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+#         -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+#         -Dsonar.coverage.jacoco.xmlReportPaths=jacoco.xml \
+#         -Dsonar.dependencyCheck.htmlReportPath=dependency-check-report.html  \
+#         -Dsonar.findbugs.reportpaths=target/spotbugsXml.xml \
+#         -Dsonar.qualitygate.wait=true
 
-  docker-build-push:
-    runs-on: ubuntu-latest
-    env: 
-      ECR_REPO: 'salary-api'
-      AWS_REGION: 'ap-south-1'
-    needs: sca-sonar-analysis
-    outputs:
-      image_tag: ${{ steps.vars.outputs.image_tag }}
-      image-name: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}
-    steps:
-      - name: Download source code
-        uses: actions/download-artifact@v4
-        with:
-          name: source-code
-          path: .
+#   docker-build-push:
+#     runs-on: ubuntu-latest
+#     env: 
+#       ECR_REPO: 'salary-api'
+#       AWS_REGION: 'ap-south-1'
+#     needs: sca-sonar-analysis
+#     outputs:
+#       image_tag: ${{ steps.vars.outputs.image_tag }}
+#       image-name: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}
+#     steps:
+#       - name: Download source code
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: source-code
+#           path: .
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
-          role-session-name: GitHubActionSession
-          aws-region: ${{ env.AWS_REGION }}
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
+#           role-session-name: GitHubActionSession
+#           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-
-      - name: Set Image Tags
-        id: vars
-        run: |
-          IMAGE_TAG=${{ github.ref_name }}-$(echo $GITHUB_SHA | head -c 8)
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+#       - name: Log in to Amazon ECR
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v2
 
 
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
-
-      - name: Upload ecr image scan file
-        uses: actions/upload-artifact@v4
-        with:
-          name: ecr-scan-file
-          path: ecr-image-scan.sh
-
-      - name: Save Docker image to file
-        run: docker save ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }} | gzip > salary-api-image.tar.gz
-
-      - name: Upload image as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: prebuilt-salary-api-image
-          path: salary-api-image.tar.gz
-
-  docker-image-scan:
-    runs-on: ubuntu-latest
-    env: 
-      ECR_REPO: 'salary-api'
-      AWS_REGION: 'ap-south-1'
-    needs: docker-build-push
-    steps:
-      - name: Download ecr image scan file
-        uses: actions/download-artifact@v4
-        with:
-          name: ecr-scan-file
-          path: .
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
-          role-session-name: GitHubActionSession
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Install JQ
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Run ECR Vulnerability Scan Check
-        run: |
-          chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image_tag }} ${{ env.AWS_REGION }}
-
-  dast:
-    needs: [docker-build-push, docker-image-scan]
-    runs-on: ubuntu-latest
-    env:
-      IMAGE_NAME: ${{ needs.docker-build-push.outputs.image-name }}:${{ needs.docker-build-push.outputs.image_tag }}
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-        with:
-          path: .
-
-      - name: Download prebuilt image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: prebuilt-salary-api-image
-          path: .
-
-      - name: Load Docker image
-        run: gunzip -c salary-api-image.tar.gz | docker load
-
-      - name: Start application
-        run: |
-          echo "IMAGE_NAME=${{ needs.docker-build-push.outputs.image-name }}:${{ needs.docker-build-push.outputs.image_tag }}" > .env
-          docker compose up -d
+#       - name: Set Image Tags
+#         id: vars
+#         run: |
+#           IMAGE_TAG=${{ github.ref_name }}-$(echo $GITHUB_SHA | head -c 8)
+#           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+#           echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
 
-      - name: Run ZAP scan
-        run: |
-          sleep 30
-          set +e  
-          docker run --network host -u root -v $(pwd):/zap/wrk ghcr.io/zaproxy/zaproxy:stable \
-            zap-full-scan.py -t http://localhost:8080 -J report.json -z "-config urls.file=/zap/wrk/urls.txt"
+#       - name: Build and Push Docker Image
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: .
+#           push: true
+#           tags: |
+#             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
+
+#       - name: Upload ecr image scan file
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: ecr-scan-file
+#           path: ecr-image-scan.sh
+
+#       - name: Save Docker image to file
+#         run: docker save ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }} | gzip > salary-api-image.tar.gz
+
+#       - name: Upload image as artifact
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: prebuilt-salary-api-image
+#           path: salary-api-image.tar.gz
+
+#   docker-image-scan:
+#     runs-on: ubuntu-latest
+#     env: 
+#       ECR_REPO: 'salary-api'
+#       AWS_REGION: 'ap-south-1'
+#     needs: docker-build-push
+#     steps:
+#       - name: Download ecr image scan file
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: ecr-scan-file
+#           path: .
+
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
+#           role-session-name: GitHubActionSession
+#           aws-region: ${{ env.AWS_REGION }}
+
+#       - name: Install JQ
+#         run: sudo apt-get update && sudo apt-get install -y jq
+
+#       - name: Run ECR Vulnerability Scan Check
+#         run: |
+#           chmod +x ./ecr-image-scan.sh && ./ecr-image-scan.sh ${{ env.ECR_REPO }} ${{ needs.docker-build-push.outputs.image_tag }} ${{ env.AWS_REGION }}
+
+#   dast:
+#     needs: [docker-build-push, docker-image-scan]
+#     runs-on: ubuntu-latest
+#     env:
+#       IMAGE_NAME: ${{ needs.docker-build-push.outputs.image-name }}:${{ needs.docker-build-push.outputs.image_tag }}
+#     steps:
+#       - name: checkout
+#         uses: actions/checkout@v4
+#         with:
+#           path: .
+
+#       - name: Download prebuilt image artifact
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: prebuilt-salary-api-image
+#           path: .
+
+#       - name: Load Docker image
+#         run: gunzip -c salary-api-image.tar.gz | docker load
+
+#       - name: Start application
+#         run: |
+#           echo "IMAGE_NAME=${{ needs.docker-build-push.outputs.image-name }}:${{ needs.docker-build-push.outputs.image_tag }}" > .env
+#           docker compose up -d
+
+
+#       - name: Run ZAP scan
+#         run: |
+#           sleep 30
+#           set +e  
+#           docker run --network host -u root -v $(pwd):/zap/wrk ghcr.io/zaproxy/zaproxy:stable \
+#             zap-full-scan.py -t http://localhost:8080 -J report.json -z "-config urls.file=/zap/wrk/urls.txt"
           
-          exit_code=$?
-          echo "ZAP exited with code: $exit_code"
+#           exit_code=$?
+#           echo "ZAP exited with code: $exit_code"
 
-          if [[ $exit_code -eq 2 ]]; then
-            echo "ZAP found warnings but no failures — treating as success."
-            exit 0
-          fi
+#           if [[ $exit_code -eq 2 ]]; then
+#             echo "ZAP found warnings but no failures — treating as success."
+#             exit 0
+#           fi
 
-          exit $exit_code  
+#           exit $exit_code  
 
-      - name: Validate ZAP Report for High Risk Issues
-        run: |
-          if grep -q 'High' report.json; then
-            echo "High risk issues found in report!"
-            exit 1
-          else
-            echo "No High risk issues found in report."
-          fi
+#       - name: Validate ZAP Report for High Risk Issues
+#         run: |
+#           if grep -q 'High' report.json; then
+#             echo "High risk issues found in report!"
+#             exit 1
+#           else
+#             echo "No High risk issues found in report."
+#           fi
 
-  trigger-CD:
-    runs-on: ubuntu-latest
-    needs: [dast]
-    if: success()
-    steps:
-    - name: Checkout GitOps repository
-      uses: actions/checkout@v4
-      with:
-        repository: NavabShariff/gitops-source
-        token: ${{ secrets.GH_TOKEN }}
+#   trigger-CD:
+#     runs-on: ubuntu-latest
+#     needs: [dast]
+#     if: success()
+#     steps:
+#     - name: Checkout GitOps repository
+#       uses: actions/checkout@v4
+#       with:
+#         repository: NavabShariff/gitops-source
+#         token: ${{ secrets.GH_TOKEN }}
 
-    - name: Determine Deployment Environment Path
-      run: |
-        BRANCH_NAME="${{ github.ref_name }}"
-        APP_NAME="${{ github.event.repository.name }}"
+#     - name: Determine Deployment Environment Path
+#       run: |
+#         BRANCH_NAME="${{ github.ref_name }}"
+#         APP_NAME="${{ github.event.repository.name }}"
 
-        if [[ "$BRANCH_NAME" == release-* ]]; then
-          echo "ENV_FOLDER=$APP_NAME/overlays/staging" >> $GITHUB_ENV
-        elif [[ "$BRANCH_NAME" == main || "$BRANCH_NAME" == master ]]; then
-          echo "ENV_FOLDER=$APP_NAME/overlays/prod" >> $GITHUB_ENV
-        else
-          echo "ENV_FOLDER=$APP_NAME/overlays/dev" >> $GITHUB_ENV
-        fi
+#         if [[ "$BRANCH_NAME" == release-* ]]; then
+#           echo "ENV_FOLDER=$APP_NAME/overlays/staging" >> $GITHUB_ENV
+#         elif [[ "$BRANCH_NAME" == main || "$BRANCH_NAME" == master ]]; then
+#           echo "ENV_FOLDER=$APP_NAME/overlays/prod" >> $GITHUB_ENV
+#         else
+#           echo "ENV_FOLDER=$APP_NAME/overlays/dev" >> $GITHUB_ENV
+#         fi
 
-    - name: Update Image Tag in kustomization.yaml
-      run: |
-        IMAGE_TAG=${{ github.ref_name }}-$(echo $GITHUB_SHA | head -c 8)
+#     - name: Update Image Tag in kustomization.yaml
+#       run: |
+#         IMAGE_TAG=${{ github.ref_name }}-$(echo $GITHUB_SHA | head -c 8)
 
-        if [[ -f "$ENV_FOLDER/kustomization.yaml" ]]; then
-          sed -i "s|newTag: .*|newTag: $IMAGE_TAG|" "$ENV_FOLDER/kustomization.yaml"
-          echo "Updated $ENV_FOLDER/kustomization.yaml with image tag: $IMAGE_TAG"
-        else
-          echo "ERROR: Cannot find $ENV_FOLDER/kustomization.yaml" >&2
-          exit 1
-        fi
+#         if [[ -f "$ENV_FOLDER/kustomization.yaml" ]]; then
+#           sed -i "s|newTag: .*|newTag: $IMAGE_TAG|" "$ENV_FOLDER/kustomization.yaml"
+#           echo "Updated $ENV_FOLDER/kustomization.yaml with image tag: $IMAGE_TAG"
+#         else
+#           echo "ERROR: Cannot find $ENV_FOLDER/kustomization.yaml" >&2
+#           exit 1
+#         fi
 
-    - name: Commit and Push updated kustomization.yaml
-      run: |
-        git config --global user.name "${{ github.actor }}"
-        git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-        git add .
-        git commit -m "Deploy: Update image tag to $IMAGE_TAG for ${{ github.event.repository.name }} on branch ${GITHUB_REF##*/}"
-        git push
+#     - name: Commit and Push updated kustomization.yaml
+#       run: |
+#         git config --global user.name "${{ github.actor }}"
+#         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+#         git add .
+#         git commit -m "Deploy: Update image tag to $IMAGE_TAG for ${{ github.event.repository.name }} on branch ${GITHUB_REF##*/}"
+#         git push
   
-  slack-notification:
-    uses: NavabShariff/shared-library/.github/workflows/send-slack-alert.yml@main
-    needs: [build, bug-analysis, dependency-check, sca-sonar-analysis, docker-build-push, docker-image-scan, dast,trigger-CD]
-    if: always()
-    with:
-      status: ${{ contains(join(needs.*.result, ' '), 'failure') && 'failure' || 'success' }}
-      commit_author_name: ${{ github.event.pusher.name }}
-      commit_message: ${{ github.event.head_commit.message }}
-      commit_id: ${{ github.sha }}
-      run_id: ${{ github.run_id }}
-    secrets:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#   slack-notification:
+#     uses: NavabShariff/shared-library/.github/workflows/send-slack-alert.yml@main
+#     needs: [build, bug-analysis, dependency-check, sca-sonar-analysis, docker-build-push, docker-image-scan, dast,trigger-CD]
+#     if: always()
+#     with:
+#       status: ${{ contains(join(needs.*.result, ' '), 'failure') && 'failure' || 'success' }}
+#       commit_author_name: ${{ github.event.pusher.name }}
+#       commit_message: ${{ github.event.head_commit.message }}
+#       commit_id: ${{ github.sha }}
+#       run_id: ${{ github.run_id }}
+#     secrets:
+#       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-  cleanup:
-    runs-on: ubuntu-latest
-    needs: [build, docker-image-scan, dast, slack-notification]
-    if: always()
-    steps:
+#   cleanup:
+#     runs-on: ubuntu-latest
+#     needs: [build, docker-image-scan, dast, slack-notification]
+#     if: always()
+#     steps:
 
-      - name: Install JQ
-        run: sudo apt-get update && sudo apt-get install -y jq
+#       - name: Install JQ
+#         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: clean artifacts
-        run: |
-          export GH_TOKEN=${{ secrets.GH_TOKEN }}
+#       - name: clean artifacts
+#         run: |
+#           export GH_TOKEN=${{ secrets.GH_TOKEN }}
            
-          ids=$(gh api repos/${{ github.repository }}/actions/artifacts | jq -r  '.artifacts[] .id')
+#           ids=$(gh api repos/${{ github.repository }}/actions/artifacts | jq -r  '.artifacts[] .id')
 
-          for id in $ids; do
-            echo "Deleting artifact id: $id"
-            gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$id
-          done
+#           for id in $ids; do
+#             echo "Deleting artifact id: $id"
+#             gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$id
+#           done
