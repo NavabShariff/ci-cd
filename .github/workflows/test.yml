@@ -17,6 +17,7 @@ jobs:
     - uses: commit-check/commit-check-action@v1
       with:
         commit-signoff: true
+        message: false
 
 
   docker-build-push:
