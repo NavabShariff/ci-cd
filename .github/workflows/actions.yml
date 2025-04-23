@@ -321,7 +321,7 @@ jobs:
 
   trigger-CD:
     runs-on: ubuntu-latest
-    needs: [docker-image-scan]
+    needs: [dast]
     if: success()
     steps:
     - name: Checkout GitOps repository
