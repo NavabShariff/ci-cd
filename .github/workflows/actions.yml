@@ -24,17 +24,17 @@ permissions:
 
 jobs:
 
-  clone:
-    runs-on: ubuntu-latest
-    steps:
-    - name: checkout code
-      uses: actions/checkout@v4
+  # clone:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: checkout code
+  #     uses: actions/checkout@v4
 
-    - name: Upload Source Code
-      uses: actions/upload-artifact@v4
-      with:
-        name: source-code
-        path: .
+  #   - name: Upload Source Code
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: source-code
+  #       path: .
 
   credential-scan:
     needs: clone
