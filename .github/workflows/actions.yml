@@ -35,7 +35,6 @@
 #         fail: true
 #         redact: true
 #         verbose: true
-#         # args: --verbose --redact --exit-code 1
 
 #     - name: check for commit sign-off
 #       run: |
