@@ -38,7 +38,7 @@ jobs:
       run: |
         git log -1 --pretty=%B | grep -q "Signed-off-by:"
 
-        if [[ $? -eq 0]]; then
+        if [[ $? -eq 0]] then
           echo "commit is missing Signed-off-by line"
           exit 1
         fi
