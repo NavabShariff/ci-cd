@@ -339,7 +339,7 @@ jobs:
         IMAGE_TAG=${{ github.ref_name }}-$(echo $GITHUB_SHA | head -c 8)
 
         if [[ -f "$ENV_FOLDER/kustomization.yaml" ]]; then
-          sed -i "s|newTag: .*|newTag: $IMAGE_TAG|"" "$ENV_FOLDER/kustomization.yaml"
+          sed -i "s|newTag: .*|newTag: $IMAGE_TAG|" "$ENV_FOLDER/kustomization.yaml"
           echo "Updated $ENV_FOLDER/kustomization.yaml with image tag: $IMAGE_TAG"
         else
           echo "ERROR: Cannot find $ENV_FOLDER/kustomization.yaml" >&2
