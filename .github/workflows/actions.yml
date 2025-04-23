@@ -37,6 +37,7 @@ jobs:
         path: .
 
   credential-scan:
+    needs: clone
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
