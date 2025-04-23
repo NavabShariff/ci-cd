@@ -1,5 +1,0 @@
-[[rules]]
-  id = "sonar-token"
-  description = "Sonar Token"
-  regex = '''sonar.token\s*=\s*["']?[a-zA-Z0-9_\-]{20,}["']?'''
-  tags = ["secret", "sonar"]
