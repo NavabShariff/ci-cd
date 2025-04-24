@@ -1,3 +1,8 @@
 dependency-check-report.html
 dependency-check-report.json
 ecr-image-scan.sh
+images/
+ci-cd-cd.md
+README.md
+.github/
+doc/
