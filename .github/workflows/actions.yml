@@ -52,6 +52,7 @@ jobs:
         path: .
 
   license-scanning:
+    needs: pre_checks
     runs-on: ubuntu-latest
     steps:
     - name: download artifacts
@@ -77,7 +78,7 @@ jobs:
         fi
 
   build:
-    needs: pre_checks
+    needs: license-scanning:
     runs-on: ubuntu-latest
     container:
       image: maven:3.9-eclipse-temurin-17
@@ -202,7 +203,7 @@ jobs:
     env: 
       ECR_REPO: 'salary-api'
       AWS_REGION: 'ap-south-1'
-    needs: sca-sonar-analysis
+    needs: sca-analysis
     outputs:
       image_tag: ${{ steps.vars.outputs.image_tag }}
       image-name: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}
@@ -376,7 +377,7 @@ jobs:
   
   slack-notification:
     uses: NavabShariff/shared-library/.github/workflows/send-slack-alert.yml@main
-    needs: [build, bug-analysis, dependency-check, sca-sonar-analysis, docker-build-push, docker-image-scan, dast,trigger-CD]
+    needs: [pre_checks, license-scanning, build, bug-analysis, dependency-check, sca-analysis, docker-build-push, docker-image-scan, dast,trigger-CD]
     if: always()
     with:
       status: ${{ contains(join(needs.*.result, ' '), 'failure') && 'failure' || 'success' }}
@@ -389,7 +390,7 @@ jobs:
 
   cleanup:
     runs-on: ubuntu-latest
-    needs: [build, docker-image-scan, dast, slack-notification]
+    needs: [slack-notification]
     if: always()
     steps:
 
