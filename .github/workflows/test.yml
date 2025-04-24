@@ -20,10 +20,10 @@ jobs:
         mvn dependency:resolve
     
 
-    - name: check gem
-      run: |
-       which gem
-       
+    # - name: check gem
+    #   run: |
+    #    which gem
+
     - name: install icense finder
       run: |
         echo "Installing license_finder"
