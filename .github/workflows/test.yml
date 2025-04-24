@@ -7,24 +7,23 @@ on:
 
 jobs:
   license-checking:
-    # runs-on: ubuntu-latest
-    using: "composite"
-    container:
-      image: maven:3.9-eclipse-temurin-17
-      options: --user root
+    runs-on: ubuntu-latest
+    # using: "composite"
+    # container:
+    #   image: maven:3.9-eclipse-temurin-17
+    #   options: --user root
     steps:
     - name: checkout
       uses: actions/checkout@v4
 
-    - name: download maven dendencies
-      run : |
-        mvn dependency:resolve
+    # - name: download maven dendencies
+    #   run : |
+    #     mvn dependency:resolve
     
-
     - name: 'Install license-finder'
       run: |
         echo "Installing license_finder"
-        sudo gem install license_finder
+        gem install license_finder
 
     # - name: check license scan
     #   run: |
