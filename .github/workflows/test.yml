@@ -19,10 +19,15 @@ jobs:
       run : |
         mvn dependency:resolve
     
+
+    - name: check gem
+      run: |
+       which gem
+       
     - name: install icense finder
       run: |
         echo "Installing license_finder"
-        sudo gem install license_finder
+        gem install license_finder
 
     - name: check license scan
       run: |
