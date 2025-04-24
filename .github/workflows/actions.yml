@@ -78,7 +78,7 @@ jobs:
         fi
 
   build:
-    needs: license-scanning:
+    needs: license-scanning
     runs-on: ubuntu-latest
     container:
       image: maven:3.9-eclipse-temurin-17
