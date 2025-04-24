@@ -12,25 +12,30 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4
 
-    - name: 'Install license-finder'
-      run: |
-        echo "Installing license_finder"
-        sudo apt install ruby ruby-dev
-        sudo gem install license_finder
-
-    - name: Set up JDK 17 and Maven
-      uses: actions/setup-java@v4
+    - uses: jmservera/license-finder-action@v0.1.4-alpha
       with:
-        distribution: 'temurin'
-        java-version: '17'
-
-    - name: maven load dependency
-      run: |
-        mvn dependency:resolve
+        permitted-licenses: MIT,Apache-2.0
         
-    - name: check license scan
-      run: |
-        license_finder --project-path=.
+        # approved-dependencies: jquery,bootstrap
+    # - name: 'Install license-finder'
+    #   run: |
+    #     echo "Installing license_finder"
+    #     sudo apt install ruby ruby-dev
+    #     sudo gem install license_finder
+
+    # - name: Set up JDK 17 and Maven
+    #   uses: actions/setup-java@v4
+    #   with:
+    #     distribution: 'temurin'
+    #     java-version: '17'
+
+    # - name: maven load dependency
+    #   run: |
+    #     mvn dependency:resolve
+
+    # - name: check license scan
+    #   run: |
+    #     license_finder --project-path=.
 
     # - name: check license scan
     #   run: |
