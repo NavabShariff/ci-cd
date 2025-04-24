@@ -1,4 +1,4 @@
-name: salary-api-build-pipeline
+name: salary-api-ci-cd-pipeline
 
 on: 
   push: 
@@ -60,7 +60,7 @@ jobs:
       with:
        name: source-code
        path: .
-       
+
     - name: 'Install license-finder'
       run: |
         echo "Installing license_finder"

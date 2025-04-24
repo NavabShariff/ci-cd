@@ -83,12 +83,17 @@ This flow ensures **full traceability**, **environment isolation**, and **automa
 
 ## CI/CD Status
 
-![Pre_Checks](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=pre_checks)
-![License_Scanning](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=license-scanning)
-![Build](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=build)
-![Bug-Analysis](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=bug-analysis)
-![Sca-Analysis](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=sca-analysis)
-![Docker-Build](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=docker-build-push)
-![Docker-Image-Scan](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=docker-image-scan)
-![DAST](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=dast)
-![Trigger-Deploy](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=trigger-CD)
+### CI/CD Status
+
+| Stage                | Status                                                                                  |
+|----------------------|------------------------------------------------------------------------------------------|
+| Pre Checks           | ![Pre_Checks](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=pre_checks) |
+| License Scanning     | ![License_Scanning](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=license-scanning) |
+| Dependency Check     | ![Dependency Check](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=dependency-check) |
+| Build                | ![Build](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=build) |
+| Bug Analysis         | ![Bug-Analysis](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=bug-analysis) |
+| SCA Analysis         | ![Sca-Analysis](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=sca-analysis) |
+| Docker Build & Push  | ![Docker-Build](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=docker-build-push) |
+| Docker Image Scan    | ![Docker-Image-Scan](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=docker-image-scan) |
+| DAST                 | ![DAST](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=dast) |
+| Trigger CD           | ![Trigger-Deploy](https://github.com/NavabShariff/ci-cd/actions/workflows/actions.yml/badge.svg?label=trigger-CD) |
