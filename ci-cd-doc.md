@@ -71,19 +71,8 @@ Branch-based deployment logic:
 This flow ensures **full traceability**, **environment isolation**, and **automated deployments** with clear promotion paths:  
 `dev` ➝ `release-*` ➝ `main`
 
-
-## 🚀 Deployment Clusters
-
-| Environment | Deployment Method | Sync Type  |
-|-------------|-------------------|------------|
-| Dev/QA      | ArgoCD            | Auto Sync  |
-| Staging     | ArgoCD            | Auto Sync  |
-| Production  | ArgoCD            | Manual Sync |
-
-
 ## CI/CD Status
 
-### CI/CD Status
 
 | Stage                | Status                                                                                  |
 |----------------------|------------------------------------------------------------------------------------------|
