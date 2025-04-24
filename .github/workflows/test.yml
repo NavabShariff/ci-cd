@@ -26,9 +26,13 @@ jobs:
 
     - name: check license scan
       run: |
-        if license_finder --project-path=. --decisions-file=license_decisions.yml | grep -q "Dependencies that need approval"; then
-          echo "There are dependency's that need to approval"
-          exit 1
-        else
-         echo "All dependencies are approved"
-        fi
+        license_finder --project-path=.
+        
+    # - name: check license scan
+    #   run: |
+    #     if license_finder --project-path=. --decisions-file=license_decisions.yml | grep -q "Dependencies that need approval"; then
+    #       echo "There are dependency's that need to approval"
+    #       exit 1
+    #     else
+    #      echo "All dependencies are approved"
+    #     fi
