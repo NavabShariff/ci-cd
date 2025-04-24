@@ -23,8 +23,8 @@ jobs:
     - name: 'Install license-finder'
       run: |
         echo "Installing license_finder"
-        sudo apt install ruby ruby-dev
-        gem install license_finder
+        # sudo apt install ruby ruby-dev
+        sudo gem install license_finder
 
     # - name: check license scan
     #   run: |
