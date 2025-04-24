@@ -8,10 +8,9 @@ on:
 jobs:
   license-checking:
     runs-on: ubuntu-latest
-    # using: "composite"
-    # container:
-    #   image: maven:3.9-eclipse-temurin-17
-    #   options: --user root
+    container:
+      image: maven:3.9-eclipse-temurin-17
+      options: --user root
     steps:
     - name: checkout
       uses: actions/checkout@v4
@@ -23,8 +22,8 @@ jobs:
     - name: 'Install license-finder'
       run: |
         echo "Installing license_finder"
-        # sudo apt install ruby ruby-dev
-        sudo gem install license_finder
+        apt install ruby ruby-dev
+        gem install license_finder
 
     # - name: check license scan
     #   run: |
