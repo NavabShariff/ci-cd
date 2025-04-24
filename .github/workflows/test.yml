@@ -37,7 +37,7 @@ jobs:
 
     - name: check license scan
       run: |
-        license_finder --project-path=. --decisions-file=permitted-licenses.yml
+        license_finder --project-path=. --decisions-file=doc/dependency_decisions.yml
         
         exit_code=$?
 
