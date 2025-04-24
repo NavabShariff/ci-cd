@@ -19,13 +19,14 @@ on:
 
 permissions:
   id-token: write
-  contents: read  
+  contents: read
   packages: write
 
 jobs:
 
   pre_checks:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3 
@@ -49,6 +50,23 @@ jobs:
       with:
         name: source-code
         path: .
+  
+  license_check:
+    runs-on: ubuntu-latest
+    container:
+      image: maven:3.9-eclipse-temurin-17
+      options: --user root
+    needs: pre_checks
+    steps:
+    - name: Download Source code
+      uses: actions/download-artifact@v4
+      with:
+        name: source-code
+        path: .
+
+    - name: download maven plugin dependencies
+      run: |
+       mvn dependency:resolve
 
   build:
     needs: pre_checks
@@ -67,6 +85,7 @@ jobs:
     - name: Build the Source Code
       run: |
         mvn clean package -DskipTests
+
 
     - name: Upload Compile files target folder
       uses: actions/upload-artifact@v4
@@ -104,7 +123,6 @@ jobs:
         name: bug-report
         path: target/*.xml
 
-
   dependency-check:
     needs: pre_checks
     runs-on: ubuntu-latest
@@ -122,13 +140,13 @@ jobs:
       run: |
         mvn dependency-check:check
 
-    - name: Upload Bug report
+    - name: Upload dependency report
       uses: actions/upload-artifact@v4
       with:
         name: dependency-check-report
         path: dependency-check-report.html
 
-  sca-sonar-analysis:
+  sca-analysis:
     needs: [build, bug-analysis, dependency-check]
     runs-on: ubuntu-latest
     container:
@@ -187,12 +205,15 @@ jobs:
           name: source-code
           path: .
 
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_ATHENTICATION }}
           role-session-name: GitHubActionSession
           aws-region: ${{ env.AWS_REGION }}
+
+
 
       - name: Log in to Amazon ECR
         id: login-ecr

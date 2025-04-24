@@ -1,0 +1,34 @@
+name: test
+
+on:
+ push:
+  branches: ['main']
+
+
+jobs:
+  license-checking:
+    runs-on: ubuntu-latest
+    container:
+      image: maven:3.9-eclipse-temurin-17
+      options: --user root
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+
+    - name: download maven dendencies
+      run : |
+        mvn dependency:resolve
+    
+    - name: install icense finder
+      run: |
+        echo "Installing license_finder"
+        sudo gem install license_finder
+
+    - name: check license scan
+      run: |
+        if license_finder --project-path=. --decisions-file=license_decisions.yml | grep -q "Dependencies that need approval"; then
+          echo "There are dependency's that need to approval"
+          exit 1
+        else
+         echo "All dependencies are approved"
+        fi
