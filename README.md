@@ -139,15 +139,16 @@ docker compose -f docker-compose.yaml up -d
 
 license_finder permitted_licenses add "Apache 2.0"
 license_finder permitted_licenses add "MIT"
-license_finder permitted_licenses add "Eclipse Public License v2.0"
 license_finder permitted_licenses add "BSD-3-Clause"
-license_finder permitted_licenses add "Eclipse 2.0"
-license_finder permitted_licenses add "Eclipse Public License 1.0"
-license_finder permitted_licenses add "Eclipse Distribution License - v 1.0"
-license_finder permitted_licenses add "GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1"
 license_finder permitted_licenses add "MIT-0"
 license_finder permitted_licenses add "EDL 1.0"
+license_finder permitted_licenses add "Eclipse Distribution License - v 1.0"
 license_finder permitted_licenses add "Public Domain, per Creative Commons CC0"
+
+license_finder permitted_licenses add "Eclipse Public License v2.0"
+license_finder permitted_licenses add "Eclipse 2.0"
+license_finder permitted_licenses add "Eclipse Public License 1.0"
+license_finder permitted_licenses add "GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1"
 
 ###
 
