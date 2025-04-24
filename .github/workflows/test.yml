@@ -20,25 +20,20 @@ jobs:
         sudo apt install ruby ruby-dev
         sudo gem install license_finder
 
-    - name: 'License Scan'
-      uses: jmservera/license-finder-action@v0.1.4-alpha
-      with:
-        permitted-licenses: MIT,Apache-2.0,BSD-3-Clause,MIT-0,EDL 1.0,Eclipse Distribution License - v 1.0,Public Domain,per Creative Commons CC0
-        # approved-dependencies: jakarta.annotation-api,jnr-posix,junit-jupiter,junit-jupiter-api,junit-jupiter-engine,junit-jupiter-params,junit-platform-commons,junit-platform-engine,logback-classic,logback-core
+    - name: check license scan
+      run: |
+        license_finder --project-path=. --decisions-file=doc/dependency_decisions.yml
+        
+        exit_code=$?
+
+        if [[ $exit_code -ne 0 ]]; then
+         echo "There are dependency's that need to approval"
+         exit 1
+        else
+         echo "All dependencies are approved"
+        fi
 
     - name: check
       run: |
         ls -lh
         ls -lh target/
-    # - name: check license scan
-    #   run: |
-    #     license_finder --project-path=. --decisions-file=doc/dependency_decisions.yml
-        
-    #     exit_code=$?
-
-    #     if [[ $exit_code -ne 0 ]]; then
-    #      echo "There are dependency's that need to approval"
-    #      exit 1
-    #     else
-    #      echo "All dependencies are approved"
-    #     fi
