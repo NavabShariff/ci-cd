@@ -1,0 +1,85 @@
+---
+- - :permit
+  - Apache 2.0
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:08:22.039637977 Z
+- - :permit
+  - MIT
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:08:22.480752016 Z
+- - :permit
+  - Eclipse Public License v2.0
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:08:22.851501155 Z
+- - :permit
+  - BSD-3-Clause
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:08:23.217041232 Z
+- - :permit
+  - Eclipse 2.0
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:08:23.577534860 Z
+- - :permit
+  - Eclipse Public License 1.0
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:08:23.941531232 Z
+- - :permit
+  - Eclipse Distribution License - v 1.0
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:08:24.313487024 Z
+- - :permit
+  - GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:08:24.687475722 Z
+- - :permit
+  - MIT-0
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:08:25.058456694 Z
+- - :permit
+  - EDL 1.0
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:08:25.425304394 Z
+- - :permit
+  - Public Domain, per Creative Commons CC0
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:08:25.784602047 Z
+- - :permit
+  - EDL 1.0
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:08:29.088847022 Z
+- - :unpermit
+  - EDL 1.0
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:13:36.148175929 Z
+- - :permit
+  - EDL 1.0
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2025-04-24 10:14:08.992016011 Z

@@ -11,17 +11,14 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v4
-
-    - uses: jmservera/license-finder-action@v0.1.4-alpha
       with:
-        permitted-licenses: MIT,Apache-2.0
-        
-        # approved-dependencies: jquery,bootstrap
-    # - name: 'Install license-finder'
-    #   run: |
-    #     echo "Installing license_finder"
-    #     sudo apt install ruby ruby-dev
-    #     sudo gem install license_finder
+       path: .
+
+    - name: 'Install license-finder'
+      run: |
+        echo "Installing license_finder"
+        sudo apt install ruby ruby-dev
+        sudo gem install license_finder
 
     # - name: Set up JDK 17 and Maven
     #   uses: actions/setup-java@v4
@@ -33,15 +30,20 @@ jobs:
     #   run: |
     #     mvn dependency:resolve
 
-    # - name: check license scan
+    # - name: check some pwd and files
     #   run: |
-    #     license_finder --project-path=.
+    #     pwd
+    #     ls -lh
 
-    # - name: check license scan
-    #   run: |
-    #     if license_finder --project-path=. --decisions-file=license_decisions.yml | grep -q "Dependencies that need approval"; then
-    #       echo "There are dependency's that need to approval"
-    #       exit 1
-    #     else
-    #      echo "All dependencies are approved"
-    #     fi
+    - name: check license scan
+      run: |
+        license_finder --project-path=. --decisions-file=permitted-licenses.yml
+        
+        exit_code=$?
+
+        if [[ $exit_code -ne 0 ]]; then
+         echo "There are dependency's that need to approval"
+         exit 1
+        else
+         echo "All dependencies are approved"
+        fi
