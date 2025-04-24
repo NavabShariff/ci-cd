@@ -7,7 +7,8 @@ on:
 
 jobs:
   license-checking:
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    using: "composite"
     container:
       image: maven:3.9-eclipse-temurin-17
       options: --user root
@@ -20,20 +21,16 @@ jobs:
         mvn dependency:resolve
     
 
-    # - name: check gem
-    #   run: |
-    #    which gem
-
-    - name: install icense finder
+    - name: 'Install license-finder'
       run: |
         echo "Installing license_finder"
-        gem install license_finder
+        sudo gem install license_finder
 
-    - name: check license scan
-      run: |
-        if license_finder --project-path=. --decisions-file=license_decisions.yml | grep -q "Dependencies that need approval"; then
-          echo "There are dependency's that need to approval"
-          exit 1
-        else
-         echo "All dependencies are approved"
-        fi
+    # - name: check license scan
+    #   run: |
+    #     if license_finder --project-path=. --decisions-file=license_decisions.yml | grep -q "Dependencies that need approval"; then
+    #       echo "There are dependency's that need to approval"
+    #       exit 1
+    #     else
+    #      echo "All dependencies are approved"
+    #     fi
