@@ -13,10 +13,10 @@ jobs:
       run: |
         echo "hello"
 
+
   email_notification:
     uses: NavabShariff/shared-library/.github/workflows/email-alert.yml@main
     needs: [test]
-    # needs: [pre_checks, build, bug_analysis, dependency_check, sca, docker_build_push, docker_image_scan, dast, trigger_cd]
     if: always()
     secrets:
       smtp_server: ${{ secrets.SMTP_SERVER }}
