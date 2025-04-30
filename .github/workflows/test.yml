@@ -1,0 +1,34 @@
+name: test email alert
+
+on:
+ push:
+  branches: ['main']
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: test
+      run: |
+        echo "hello"
+
+  email_notification:
+    uses: NavabShariff/shared-library/.github/workflows/email-alert.yml@main
+    needs: [test]
+    # needs: [pre_checks, build, bug_analysis, dependency_check, sca, docker_build_push, docker_image_scan, dast, trigger_cd]
+    if: always()
+    secrets:
+      smtp_server: ${{ secrets.SMTP_SERVER }}
+      smtp_username: ${{ secrets.SMTP_USERNAME }}
+      smtp_password: ${{ secrets.SMTP_PASSWORD }}
+    with:
+      commit_author_name: ${{ github.event.pusher.name }}
+      commit_author_email: ${{ github.event.pusher.email }}
+      commit_message: ${{ github.event.head_commit.message }}
+      commit_id: ${{ github.sha }}
+      run_id: ${{ github.run_id }}
+      workflow_status: >-
+        ${{
+          contains(join(needs.*.result, ','), 'failure') && 'failure' || 'success'
+        }}
